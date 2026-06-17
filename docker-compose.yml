@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # ======= DATABASES =======
+  identity-db:
+    image: postgres:16-alpine
+    container_name: totoro-identity-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - identity_db_data:/var/lib/postgresql/data
+    networks:
+      - totoro-network
+
+  core-db:
+    image: postgres:16-alpine
+    container_name: totoro-core-db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: core_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - core_db_data:/var/lib/postgresql/data
+    networks:
+      - totoro-network
+
+  social-db:
+    image: postgres:16-alpine
+    container_name: totoro-social-db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: social_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - social_db_data:/var/lib/postgresql/data
+    networks:
+      - totoro-network
+
+  # ======= MESSAGE BROKER (KAFKA) =======
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: totoro-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - totoro-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: totoro-kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - totoro-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: totoro-kafka-ui
+    ports:
+      - "8089:8080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: totoro-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    networks:
+      - totoro-network
+
+  # ======= OBSERVABILITY & TRACING =======
+  jaeger:
+    image: jaegertracing/all-in-one:1.55
+    container_name: totoro-jaeger
+    ports:
+      - "16686:16686" # Web UI
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    networks:
+      - totoro-network
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: totoro-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - totoro-network
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: totoro-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - totoro-network
+
+volumes:
+  identity_db_data:
+  core_db_data:
+  social_db_data:
+  grafana_data:
+
+networks:
+  totoro-network:
+    driver: bridge

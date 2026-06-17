@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Tổ Ấm Xanh - Phân Tích &amp; Dự Báo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#855500",
+                        "on-primary": "#ebffdf",
+                        "secondary-dim": "#754a00",
+                        "tertiary": "#406845",
+                        "inverse-primary": "#c2f3af",
+                        "on-error": "#fff7f6",
+                        "on-secondary": "#fff7f3",
+                        "primary-fixed-dim": "#b2e1a0",
+                        "primary-dim": "#345d29",
+                        "tertiary-fixed-dim": "#c0eec1",
+                        "error": "#aa371c",
+                        "on-primary-fixed": "#204817",
+                        "error-dim": "#821a01",
+                        "outline-variant": "#bab19b",
+                        "on-surface": "#373222",
+                        "secondary-container": "#ffddb6",
+                        "inverse-on-surface": "#a29c8f",
+                        "on-tertiary-fixed-variant": "#456e4a",
+                        "on-tertiary-container": "#3b6340",
+                        "primary-fixed": "#c0f0ad",
+                        "on-tertiary-fixed": "#29502f",
+                        "on-secondary-fixed-variant": "#805100",
+                        "surface-tint": "#406934",
+                        "surface-container-highest": "#ece2ca",
+                        "inverse-surface": "#110e06",
+                        "on-secondary-fixed": "#5a3800",
+                        "surface-container-high": "#f1e7d2",
+                        "primary": "#406934",
+                        "surface-variant": "#ece2ca",
+                        "tertiary-container": "#cefdcf",
+                        "tertiary-dim": "#345c3a",
+                        "on-secondary-container": "#734900",
+                        "surface-dim": "#e4d9bf",
+                        "surface": "#fff8ef",
+                        "primary-container": "#c0f0ad",
+                        "tertiary-fixed": "#cefdcf",
+                        "secondary-fixed-dim": "#ffcb8b",
+                        "outline": "#827a66",
+                        "secondary-fixed": "#ffddb6",
+                        "on-background": "#373222",
+                        "on-primary-fixed-variant": "#3c6531",
+                        "background": "#fff8ef",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#fbf3e1",
+                        "surface-container": "#f6edda",
+                        "on-error-container": "#671200",
+                        "surface-bright": "#fff8ef",
+                        "error-container": "#fa7150",
+                        "on-tertiary": "#e9ffe6",
+                        "on-surface-variant": "#655f4c",
+                        "on-primary-container": "#335b28"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fff8ef;
+            color: #373222;
+        }
+
+        .editorial-shadow {
+            box-shadow: 0 12px 32px rgba(55, 50, 34, 0.06);
+        }
+
+        .glass-panel {
+            background: rgba(255, 248, 239, 0.7);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface">
+    <!-- SideNavBar (Authority: JSON & Design System) -->
+    <aside
+        class="h-screen w-64 fixed left-0 top-0 overflow-y-auto bg-[#f6edda] flex flex-col py-8 px-4 gap-2 z-50 editorial-shadow">
+        <div class="px-6 mb-10 flex flex-col gap-1">
+            <span class="text-2xl font-black text-[#406934] font-headline">Tổ Ấm Xanh</span>
+            <span class="text-xs font-medium text-outline uppercase tracking-widest">Quản trị viên</span>
+        </div>
+        <nav class="flex-1 flex flex-col gap-2">
+            <a class="flex items-center gap-3 text-[#827a66] px-6 py-3 hover:bg-[#fff8ef] rounded-full transition-all duration-300 group"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                <span class="font-medium text-sm">Tổng quan</span>
+            </a>
+            <a class="flex items-center gap-3 text-[#827a66] px-6 py-3 hover:bg-[#fff8ef] rounded-full transition-all duration-300 group"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+                <span class="font-medium text-sm">Danh sách</span>
+            </a>
+            <a class="flex items-center gap-3 text-[#827a66] px-6 py-3 hover:bg-[#fff8ef] rounded-full transition-all duration-300 group"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="group">group</span>
+                <span class="font-medium text-sm">Người dùng</span>
+            </a>
+            <a class="flex items-center gap-3 bg-[#406934] text-[#ffffff] rounded-full px-6 py-3 shadow-lg shadow-[#406934]/20 transform translate-x-1 duration-200"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                <span class="font-medium text-sm">Báo cáo</span>
+            </a>
+            <a class="flex items-center gap-3 text-[#827a66] px-6 py-3 hover:bg-[#fff8ef] rounded-full transition-all duration-300 group"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="font-medium text-sm">Cài đặt</span>
+            </a>
+        </nav>
+        <div class="mt-auto px-4">
+            <button
+                class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-dim transition-colors shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                <span class="text-sm">Tạo báo cáo mới</span>
+            </button>
+        </div>
+    </aside>
+    <!-- TopAppBar (Authority: JSON) -->
+    <header
+        class="bg-[#fff8ef]/70 backdrop-blur-xl flex justify-between items-center px-8 py-3 fixed top-0 right-0 z-40 ml-64 max-w-[calc(100%-16rem)] w-full">
+        <div class="flex items-center gap-6 flex-1">
+            <div class="relative w-full max-w-md">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline"
+                    data-icon="search">search</span>
+                <input
+                    class="w-full bg-surface-container-high border-none rounded-full py-2.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 placeholder:text-outline text-sm"
+                    placeholder="Tìm kiếm dữ liệu phân tích..." type="text" />
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="p-2 rounded-full hover:bg-stone-200/50 transition-colors relative">
+                <span class="material-symbols-outlined text-on-surface" data-icon="notifications">notifications</span>
+                <span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-surface"></span>
+            </button>
+            <button class="p-2 rounded-full hover:bg-stone-200/50 transition-colors">
+                <span class="material-symbols-outlined text-on-surface" data-icon="help_outline">help_outline</span>
+            </button>
+            <div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+            <img alt="Ảnh đại diện người dùng"
+                class="w-10 h-10 rounded-full object-cover border-2 border-primary-container"
+                data-alt="portrait of a professional male administrator in a clean modern office setting with soft natural lighting"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ6w4yjXqeE9eP2V8lxdt0h1WTSxW5-SvJWXa85SxavyxpVRncc2EA3oa8jKLOwMkLF-UOhaXSbgDFo4X-yBxK9ot9OsiGXFvaB5V-gI0WoTqMfN45u5vtzPzH40OPMVy1bSkGn5y9dQBSW3Uqy0ecdRgDJrNrZeOcYPuIKWrDBKBp1pr2mKZ1Mn57Rk08LBGDowjaVPbGC23QD78lFuLLBgr8wWDytQtxQ76WDJHP8RikQhL62JnU6-B2GAu2dOG3O8Rb32gB1Q" />
+        </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="ml-64 pt-24 px-12 pb-12 min-h-screen">
+        <!-- Dashboard Header -->
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h1 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Phân tích &amp; Dự
+                    báo</h1>
+                <p class="text-on-surface-variant font-medium">Báo cáo hiệu suất doanh thu và dự báo tăng trưởng dựa
+                    trên AI</p>
+            </div>
+            <div class="flex gap-3">
+                <div
+                    class="flex items-center bg-surface-container px-4 py-2 rounded-full text-sm font-semibold text-primary gap-2">
+                    <span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+                    Tháng 10, 2023
+                </div>
+                <button
+                    class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-primary transition-colors group">
+                    <span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                    Xuất dữ liệu PDF
+                </button>
+            </div>
+        </div>
+        <!-- Metric Bento Grid -->
+        <div class="grid grid-cols-12 gap-6 mb-8">
+            <!-- Main Revenue Card -->
+            <div
+                class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 editorial-shadow relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-8">
+                    <span class="material-symbols-outlined text-primary/10 text-9xl transform rotate-12"
+                        data-icon="trending_up">trending_up</span>
+                </div>
+                <div class="relative z-10">
+                    <span class="text-xs font-bold uppercase tracking-widest text-secondary mb-4 block">Tổng doanh thu
+                        thực tế</span>
+                    <div class="flex items-baseline gap-4 mb-6">
+                        <h2 class="text-5xl font-black font-headline text-on-surface">1.284.000.000 <span
+                                class="text-2xl font-bold">đ</span></h2>
+                        <span
+                            class="flex items-center text-primary font-bold text-sm bg-primary-container/30 px-3 py-1 rounded-full">
+                            <span class="material-symbols-outlined text-sm mr-1"
+                                data-icon="arrow_upward">arrow_upward</span>
+                            12.5%
+                        </span>
+                    </div>
+                    <!-- Progress Chart Placeholder -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm font-bold text-on-surface-variant">
+                            <span>Tiến độ mục tiêu tháng</span>
+                            <span>85% (Mục tiêu: 1.5 tỷ)</span>
+                        </div>
+                        <div class="w-full h-4 bg-surface-container rounded-full overflow-hidden">
+                            <div
+                                class="h-full bg-gradient-to-r from-primary to-primary-dim w-[85%] rounded-full shadow-inner">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Occupancy Rate Card -->
+            <div
+                class="col-span-12 lg:col-span-4 bg-surface-container-highest rounded-xl p-8 editorial-shadow flex flex-col justify-between">
+                <div>
+                    <span
+                        class="text-xs font-bold uppercase tracking-widest text-on-tertiary-fixed-variant mb-2 block">Tỷ
+                        lệ lấp đầy</span>
+                    <h3 class="text-4xl font-black font-headline text-primary">94.2%</h3>
+                </div>
+                <div class="mt-6 flex flex-col gap-2">
+                    <div
+                        class="flex items-center justify-between text-xs font-bold text-on-surface-variant/70 uppercase tracking-tighter">
+                        <span>Studio</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-surface-container-low rounded-full">
+                        <div class="h-full bg-primary w-full rounded-full"></div>
+                    </div>
+                    <div
+                        class="flex items-center justify-between text-xs font-bold text-on-surface-variant/70 uppercase tracking-tighter mt-1">
+                        <span>Phòng đơn</span>
+                        <span>92%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-surface-container-low rounded-full">
+                        <div class="h-full bg-primary w-[92%] rounded-full"></div>
+                    </div>
+                    <div
+                        class="flex items-center justify-between text-xs font-bold text-on-surface-variant/70 uppercase tracking-tighter mt-1">
+                        <span>Phòng chung</span>
+                        <span>88%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-surface-container-low rounded-full">
+                        <div class="h-full bg-primary w-[88%] rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Detailed Analytics Section -->
+        <div class="grid grid-cols-12 gap-8">
+            <!-- Pie Chart Revenue Allocation -->
+            <div class="col-span-12 lg:col-span-4 bg-surface-container-lowest rounded-xl p-8 editorial-shadow">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="font-bold text-lg font-headline">Phân bổ doanh thu</h3>
+                    <button class="text-outline hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+                    </button>
+                </div>
+                <!-- Visual Mockup for Pie Chart -->
+                <div class="relative flex justify-center py-6">
+                    <svg class="w-48 h-48 transform -rotate-90">
+                        <circle cx="96" cy="96" fill="transparent" r="80" stroke="#406934" stroke-dasharray="502"
+                            stroke-dashoffset="251" stroke-width="32"></circle>
+                        <circle cx="96" cy="96" fill="transparent" r="80" stroke="#855500" stroke-dasharray="502"
+                            stroke-dashoffset="376" stroke-width="32"></circle>
+                        <circle cx="96" cy="96" fill="transparent" r="80" stroke="#c0f0ad" stroke-dasharray="502"
+                            stroke-dashoffset="430" stroke-width="32"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="text-xs font-bold text-outline uppercase">Tổng cộng</span>
+                        <span class="text-xl font-black text-on-surface">1.2B</span>
+                    </div>
+                </div>
+                <div class="mt-8 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 rounded-full bg-primary"></div>
+                        <span class="flex-1 text-sm font-medium">Studio (50%)</span>
+                        <span class="text-sm font-bold">642tr</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 rounded-full bg-secondary"></div>
+                        <span class="flex-1 text-sm font-medium">Single (35%)</span>
+                        <span class="text-sm font-bold">449tr</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 rounded-full bg-primary-container"></div>
+                        <span class="flex-1 text-sm font-medium">Shared (15%)</span>
+                        <span class="text-sm font-bold">192tr</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Target vs Actual Comparison -->
+            <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 editorial-shadow">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h3 class="font-bold text-lg font-headline">Mục tiêu vs Thực tế</h3>
+                        <p class="text-xs text-outline font-medium">So sánh 6 tháng gần nhất</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-1 bg-primary rounded-full"></div>
+                            <span class="text-xs font-bold text-outline">Thực tế</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-1 bg-outline-variant/50 rounded-full"></div>
+                            <span class="text-xs font-bold text-outline">Mục tiêu</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Bar Chart Mockup -->
+                <div class="h-64 flex items-end justify-between gap-4 px-4 border-b border-outline-variant/20">
+                    <div class="flex-1 flex flex-col items-center group">
+                        <div class="w-full flex justify-center gap-1">
+                            <div class="w-4 bg-outline-variant/20 h-32 rounded-t-sm"></div>
+                            <div class="w-4 bg-primary h-28 rounded-t-sm"></div>
+                        </div>
+                        <span class="mt-4 text-[10px] font-bold text-outline">THG 05</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center group">
+                        <div class="w-full flex justify-center gap-1">
+                            <div class="w-4 bg-outline-variant/20 h-40 rounded-t-sm"></div>
+                            <div class="w-4 bg-primary h-36 rounded-t-sm"></div>
+                        </div>
+                        <span class="mt-4 text-[10px] font-bold text-outline">THG 06</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center group">
+                        <div class="w-full flex justify-center gap-1">
+                            <div class="w-4 bg-outline-variant/20 h-44 rounded-t-sm"></div>
+                            <div class="w-4 bg-primary h-48 rounded-t-sm"></div>
+                        </div>
+                        <span class="mt-4 text-[10px] font-bold text-outline">THG 07</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center group">
+                        <div class="w-full flex justify-center gap-1">
+                            <div class="w-4 bg-outline-variant/20 h-48 rounded-t-sm"></div>
+                            <div class="w-4 bg-primary h-52 rounded-t-sm"></div>
+                        </div>
+                        <span class="mt-4 text-[10px] font-bold text-outline">THG 08</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center group">
+                        <div class="w-full flex justify-center gap-1">
+                            <div class="w-4 bg-outline-variant/20 h-52 rounded-t-sm"></div>
+                            <div class="w-4 bg-primary h-44 rounded-t-sm"></div>
+                        </div>
+                        <span class="mt-4 text-[10px] font-bold text-outline">THG 09</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center group">
+                        <div class="w-full flex justify-center gap-1 relative">
+                            <div class="w-4 bg-outline-variant/20 h-56 rounded-t-sm"></div>
+                            <div class="w-4 bg-primary h-60 rounded-t-sm"></div>
+                            <div
+                                class="absolute -top-8 bg-inverse-surface text-surface text-[10px] px-2 py-1 rounded-md font-bold">
+                                Vượt 7%</div>
+                        </div>
+                        <span class="mt-4 text-[10px] font-bold text-outline">THG 10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- AI Recommendations & Forecasting -->
+        <div class="mt-12">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="material-symbols-outlined text-secondary text-3xl" data-icon="auto_awesome"
+                    data-weight="fill">auto_awesome</span>
+                <h3 class="text-2xl font-extrabold font-headline">Gợi ý tối ưu từ AI</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- AI Card 1 -->
+                <div
+                    class="bg-surface-container-low rounded-xl p-6 border-l-4 border-primary editorial-shadow flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                            <span class="material-symbols-outlined" data-icon="payments">payments</span>
+                        </div>
+                        <span class="text-[10px] font-black bg-primary text-on-primary px-2 py-0.5 rounded uppercase">Ưu
+                            tiên cao</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface mb-2">Điều chỉnh giá Studio</h4>
+                    <p class="text-sm text-on-surface-variant flex-1 mb-6">Nhu cầu phòng Studio khu vực Cầu Giấy đang
+                        tăng 20%. AI đề xuất tăng giá thuê 5% cho các hợp đồng mới để tối ưu lợi nhuận mà không ảnh
+                        hưởng tỷ lệ lấp đầy.</p>
+                    <button
+                        class="w-full py-3 rounded-xl bg-surface-container-highest font-bold text-sm text-primary hover:bg-primary hover:text-on-primary transition-all">Áp
+                        dụng ngay</button>
+                </div>
+                <!-- AI Card 2 -->
+                <div
+                    class="bg-surface-container-low rounded-xl p-6 border-l-4 border-secondary editorial-shadow flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+                            <span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-on-surface mb-2">Chiến dịch 'Shared Room'</h4>
+                    <p class="text-sm text-on-surface-variant flex-1 mb-6">Tỷ lệ lấp đầy phòng chung giảm nhẹ xuống 88%.
+                        Hãy triển khai chương trình "Ở cùng bạn thân - Giảm 10% tháng đầu" để lấp đầy 12 chỗ trống còn
+                        lại.</p>
+                    <button
+                        class="w-full py-3 rounded-xl bg-surface-container-highest font-bold text-sm text-secondary hover:bg-secondary hover:text-on-secondary transition-all">Tạo
+                        chiến dịch</button>
+                </div>
+                <!-- AI Card 3 -->
+                <div
+                    class="bg-surface-container-low rounded-xl p-6 border-l-4 border-tertiary editorial-shadow flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-tertiary/10 rounded-lg text-tertiary">
+                            <span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-on-surface mb-2">Dự báo Quý 4</h4>
+                    <p class="text-sm text-on-surface-variant flex-1 mb-6">Dựa trên dữ liệu lịch sử, doanh thu dự kiến
+                        sẽ tăng thêm 15% trong 3 tháng tới do mùa nhập học. Chuẩn bị ngân sách bảo trì 200tr cho các cơ
+                        sở phía Tây.</p>
+                    <button
+                        class="w-full py-3 rounded-xl bg-surface-container-highest font-bold text-sm text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all">Xem
+                        dự báo chi tiết</button>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Activity Log (Asymmetric Style) -->
+        <div class="mt-12 grid grid-cols-12 gap-8">
+            <div class="col-span-12 lg:col-span-7">
+                <h3 class="font-bold text-lg font-headline mb-6">Biến động doanh thu gần đây</h3>
+                <div class="space-y-4">
+                    <div
+                        class="flex items-center gap-4 p-4 bg-surface-container/30 rounded-xl hover:bg-surface-container-high transition-colors">
+                        <div
+                            class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary editorial-shadow font-bold">
+                            ST</div>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">Hợp đồng mới: Studio Cao Cấp - Tòa nhà A</p>
+                            <p class="text-xs text-outline font-medium">Khách hàng: Nguyễn Văn A • 12/10/2023</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-primary">+8.500.000đ</p>
+                            <p class="text-[10px] font-bold text-outline uppercase tracking-tighter">Đã thanh toán</p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center gap-4 p-4 bg-surface-container/30 rounded-xl hover:bg-surface-container-high transition-colors">
+                        <div
+                            class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-secondary editorial-shadow font-bold">
+                            SN</div>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">Gia hạn: Phòng đơn - Cơ sở Bách Khoa</p>
+                            <p class="text-xs text-outline font-medium">Khách hàng: Trần Thị B • 11/10/2023</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-primary">+4.200.000đ</p>
+                            <p class="text-[10px] font-bold text-outline uppercase tracking-tighter">Tháng 10/2023</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="col-span-12 lg:col-span-5 bg-primary p-8 rounded-xl text-on-primary editorial-shadow flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-primary-dim rounded-full opacity-50"></div>
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-black font-headline mb-4">Phòng đang trống</h3>
+                    <p class="text-sm opacity-90 mb-8 leading-relaxed">Hiện còn 14 phòng đang trống trên toàn hệ thống.
+                        Hãy cân nhắc chạy quảng cáo mục tiêu để đạt 100% tỷ lệ lấp đầy trong tháng này.</p>
+                    <div class="flex gap-4">
+                        <div
+                            class="bg-white/10 backdrop-blur-sm p-4 rounded-lg flex-1 border border-white/20 text-center">
+                            <span class="block text-2xl font-black">06</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest opacity-80">Studio</span>
+                        </div>
+                        <div
+                            class="bg-white/10 backdrop-blur-sm p-4 rounded-lg flex-1 border border-white/20 text-center">
+                            <span class="block text-2xl font-black">08</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest opacity-80">Phòng chung</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- FAB for quick action -->
+    <button
+        class="fixed bottom-8 right-8 w-16 h-16 bg-secondary text-on-secondary rounded-full flex items-center justify-center editorial-shadow hover:scale-110 active:scale-95 transition-all z-50 group">
+        <span class="material-symbols-outlined text-3xl" data-icon="smart_toy">smart_toy</span>
+        <div
+            class="absolute bottom-full right-0 mb-4 bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Hỏi AI Concierge</div>
+    </button>
+</body>
+
+</html>

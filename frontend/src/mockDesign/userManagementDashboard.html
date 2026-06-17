@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Digital Hearth - Management Console</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#204817",
+                        "inverse-surface": "#110e06",
+                        "secondary-fixed-dim": "#ffcb8b",
+                        "primary-dim": "#345d29",
+                        "surface-dim": "#e4d9bf",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#5a3800",
+                        "tertiary-container": "#cefdcf",
+                        "surface-tint": "#406934",
+                        "error": "#aa371c",
+                        "primary": "#406934",
+                        "on-tertiary-fixed": "#29502f",
+                        "on-secondary-fixed-variant": "#805100",
+                        "error-container": "#fa7150",
+                        "inverse-primary": "#c2f3af",
+                        "primary-fixed": "#c0f0ad",
+                        "on-tertiary-container": "#3b6340",
+                        "tertiary": "#406845",
+                        "on-background": "#373222",
+                        "tertiary-dim": "#345c3a",
+                        "outline": "#827a66",
+                        "on-primary": "#ebffdf",
+                        "surface": "#fff8ef",
+                        "on-surface": "#373222",
+                        "on-surface-variant": "#655f4c",
+                        "secondary-dim": "#754a00",
+                        "secondary-container": "#ffddb6",
+                        "on-primary-fixed-variant": "#3c6531",
+                        "surface-container-highest": "#ece2ca",
+                        "error-dim": "#821a01",
+                        "on-secondary-container": "#734900",
+                        "outline-variant": "#bab19b",
+                        "tertiary-fixed-dim": "#c0eec1",
+                        "surface-container-low": "#fbf3e1",
+                        "on-tertiary": "#e9ffe6",
+                        "surface-variant": "#ece2ca",
+                        "surface-container": "#f6edda",
+                        "secondary": "#855500",
+                        "on-tertiary-fixed-variant": "#456e4a",
+                        "surface-container-high": "#f1e7d2",
+                        "inverse-on-surface": "#a29c8f",
+                        "tertiary-fixed": "#cefdcf",
+                        "primary-container": "#c0f0ad",
+                        "background": "#fff8ef",
+                        "secondary-fixed": "#ffddb6",
+                        "on-secondary": "#fff7f3",
+                        "surface-bright": "#fff8ef",
+                        "on-error": "#fff7f6",
+                        "on-error-container": "#671200",
+                        "primary-fixed-dim": "#b2e1a0",
+                        "on-primary-container": "#335b28"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fff8ef;
+        }
+
+        .editorial-shadow {
+            box-shadow: 0 12px 32px rgba(55, 50, 34, 0.06);
+        }
+    </style>
+</head>
+
+<body class="text-on-surface">
+    <!-- Sidebar Navigation Shell -->
+    <aside
+        class="h-screen w-64 fixed left-0 top-0 overflow-y-auto bg-[#f6edda] dark:bg-stone-900 flex flex-col py-6 space-y-2 z-50">
+        <div class="px-6 mb-8">
+            <h1
+                class="text-lg font-extrabold text-[#373222] dark:text-stone-100 font-headline uppercase tracking-widest">
+                Digital Hearth</h1>
+            <div class="mt-4 flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+                    <img class="w-full h-full object-cover" data-alt="Landlord Avatar"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK0EScTTMnpPjrpsQ6yivA413yjsfXj3RzOxPS8ujyNy8AwPMhbwo7PLH5xrzkyEZfy4VjHC3Cju9PdehBvHvVslXgIE-vN1LAnYJdCP84dJNmvKG8TNlI7D-EwG1VPB1Ra0B28uVjv1PyVfnvSU5zXgVOA_8-EFmYDPnN_-qUPcvmVhG_cluMj0e3mUpzIeUpTGG3AZYmJpR02pzd1kZngz_AnA-Zd7bnxwPfK5TZ5u7McmY0b9HwOh5d_B2xdjQ-qnHUcJa2Eg" />
+                </div>
+                <div>
+                    <p class="font-headline text-sm font-semibold text-[#373222]">Management Console</p>
+                    <p class="text-xs text-on-surface-variant opacity-70">Forest Sanctuary Properties</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-grow">
+            <!-- Navigation Items Mapping -->
+            <a class="flex items-center space-x-3 text-[#373222] dark:text-stone-400 mx-2 my-1 px-4 py-3 hover:bg-[#fff8ef]/50 dark:hover:bg-stone-800/50 rounded-full transition-all duration-150"
+                href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">Overview</span>
+            </a>
+            <!-- Active State: My Listings -->
+            <a class="flex items-center space-x-3 bg-[#fff8ef] dark:bg-stone-800 text-[#4f7942] rounded-full mx-2 my-1 px-4 py-3 shadow-sm border border-outline-variant/10"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home_work</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">My Listings</span>
+            </a>
+            <a class="flex items-center space-x-3 text-[#373222] dark:text-stone-400 mx-2 my-1 px-4 py-3 hover:bg-[#fff8ef]/50 dark:hover:bg-stone-800/50 rounded-full transition-all duration-150"
+                href="#">
+                <span class="material-symbols-outlined">group</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">Tenant Requests</span>
+            </a>
+            <a class="flex items-center space-x-3 text-[#373222] dark:text-stone-400 mx-2 my-1 px-4 py-3 hover:bg-[#fff8ef]/50 dark:hover:bg-stone-800/50 rounded-full transition-all duration-150"
+                href="#">
+                <span class="material-symbols-outlined">leaderboard</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">Analytics</span>
+            </a>
+            <a class="flex items-center space-x-3 text-[#373222] dark:text-stone-400 mx-2 my-1 px-4 py-3 hover:bg-[#fff8ef]/50 dark:hover:bg-stone-800/50 rounded-full transition-all duration-150"
+                href="#">
+                <span class="material-symbols-outlined">description</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">Documents</span>
+            </a>
+        </nav>
+        <div class="px-4 mt-6">
+            <button
+                class="w-full bg-gradient-to-br from-primary to-primary-dim text-on-primary py-3 px-4 rounded-md font-headline font-bold text-sm shadow-md active:scale-95 transition-all">
+                Add New Listing
+            </button>
+        </div>
+        <div class="pt-6 mt-auto border-t border-outline-variant/10">
+            <a class="flex items-center space-x-3 text-[#373222] dark:text-stone-400 mx-2 my-1 px-4 py-3 hover:bg-[#fff8ef]/50 dark:hover:bg-stone-800/50 rounded-full transition-all"
+                href="#">
+                <span class="material-symbols-outlined">headset_mic</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">Support</span>
+            </a>
+            <a class="flex items-center space-x-3 text-error mx-2 my-1 px-4 py-3 hover:bg-error/5 rounded-full transition-all"
+                href="#">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="font-['Plus_Jakarta_Sans'] text-sm font-semibold">Logout</span>
+            </a>
+        </div>
+    </aside>
+    <!-- Main Content Canvas -->
+    <main class="ml-64 min-h-screen p-8 lg:p-12">
+        <!-- Top Action Bar -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+            <div>
+                <h2 class="text-4xl font-headline font-extrabold tracking-tight text-on-surface">My Listings</h2>
+                <p class="text-on-surface-variant mt-2 font-body italic">Manage your sanctuary offerings and student
+                    connections.</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <!-- Language Toggle -->
+                <div
+                    class="bg-surface-container p-1 rounded-full flex items-center shadow-inner border border-outline-variant/20">
+                    <button
+                        class="px-4 py-1.5 rounded-full text-xs font-bold font-label bg-surface-container-lowest text-primary shadow-sm">VI</button>
+                    <button
+                        class="px-4 py-1.5 rounded-full text-xs font-bold font-label text-on-surface-variant opacity-60">EN</button>
+                </div>
+                <button
+                    class="w-12 h-12 flex items-center justify-center bg-surface-container-high rounded-full text-on-surface-variant">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+            </div>
+        </header>
+        <!-- Stats Overview (Bento Style) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-primary-container/30 p-6 rounded-lg border border-primary-container/50">
+                <span class="text-xs font-label font-bold tracking-widest text-primary uppercase">Total Active</span>
+                <p class="text-3xl font-headline font-extrabold mt-1 text-on-primary-container">12 Rooms</p>
+            </div>
+            <div class="bg-surface-container p-6 rounded-lg">
+                <span class="text-xs font-label font-bold tracking-widest text-on-surface-variant uppercase">Pending
+                    Requests</span>
+                <p class="text-3xl font-headline font-extrabold mt-1">05 Users</p>
+            </div>
+            <div class="bg-surface-container-high p-6 rounded-lg">
+                <span class="text-xs font-label font-bold tracking-widest text-on-surface-variant uppercase">Total
+                    Views</span>
+                <p class="text-3xl font-headline font-extrabold mt-1">1.2k</p>
+            </div>
+        </div>
+        <!-- Listing Table (Editorial List View) -->
+        <div class="space-y-4">
+            <!-- Header for Table -->
+            <div
+                class="hidden md:grid grid-cols-12 px-6 py-4 text-xs font-label font-bold uppercase tracking-widest text-on-surface-variant/60">
+                <div class="col-span-5">Property Details</div>
+                <div class="col-span-2">Rent / Status</div>
+                <div class="col-span-2">Listed Date</div>
+                <div class="col-span-1">Views</div>
+                <div class="col-span-2 text-right">Actions</div>
+            </div>
+            <!-- Listing Row 1 -->
+            <div
+                class="bg-surface-container-lowest rounded-lg editorial-shadow p-4 md:p-6 transition-transform hover:-translate-y-1 duration-300">
+                <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
+                    <div class="col-span-1 md:col-span-5 flex items-center space-x-6">
+                        <div class="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-surface-container">
+                            <img class="w-full h-full object-cover" data-alt="Modern studio interior with green plants"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBgMPKa8AALxzbvrYNFzIEC2pxeyYct-0b44ETEJIXZ0LXppEGCrB8QtHN5vVJzG3YdAGDHPqnbHHn8UQFL6PZCU-9N9dkvcXUCVIFWpEVuEjDkZMRRFLzILhgcF1z6orwvP_w8bstiB3fQD3cmtqX1BFHIBxqaMKZEMyE13usTwnyTa2ke-Q1REJ0klVV6FN0n38I_kisbbzMo9ZujMVhyiVxvCH1j1kDq66dmzy1YxHYO-ZlCdIeCvc85sd27gJwmJnxy-Cwxw" />
+                        </div>
+                        <div>
+                            <h3 class="font-headline font-bold text-lg text-on-surface">The Sunlit Canopy Studio</h3>
+                            <p class="text-sm text-on-surface-variant flex items-center mt-1">
+                                <span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                45 Forest Lane, District 3, HCM
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <p class="font-headline font-extrabold text-primary">5.200.000đ</p>
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-[10px] font-bold bg-primary-container text-on-primary-container uppercase tracking-tighter">
+                            Active
+                        </span>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <p class="text-sm font-medium text-on-surface-variant">Oct 12, 2023</p>
+                    </div>
+                    <div class="col-span-1 md:col-span-1">
+                        <p class="text-sm font-bold flex items-center">
+                            <span class="material-symbols-outlined text-sm mr-1 opacity-40">visibility</span>
+                            432
+                        </p>
+                    </div>
+                    <div class="col-span-1 md:col-span-2 flex justify-end items-center space-x-2">
+                        <button
+                            class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors"
+                            title="Edit">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="p-2 hover:bg-surface-container rounded-full text-secondary transition-colors"
+                            title="Pause">
+                            <span class="material-symbols-outlined">pause_circle</span>
+                        </button>
+                        <button class="p-2 hover:bg-error/10 rounded-full text-error transition-colors" title="Delete">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Listing Row 2 -->
+            <div
+                class="bg-surface-container-lowest rounded-lg editorial-shadow p-4 md:p-6 transition-transform hover:-translate-y-1 duration-300">
+                <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
+                    <div class="col-span-1 md:col-span-5 flex items-center space-x-6">
+                        <div class="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-surface-container">
+                            <img class="w-full h-full object-cover" data-alt="Minimalist shared room with wooden desk"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAik_FP5Kiqn3HZPMdlUBomDhv5mmL-hx5kngAQZ5rszFuX-I2pkeBprTVlDzTmoRYXKtCXFIyCIc6TvlDGftrYtju9nQ3UbUAAqvYlA7k3H84-tgzqsEugNj946Fj2CcZEddeSSAMQgt07GaKusW21U8XQMLgPAsRFt-vkDhup6ZgiXgHg_EAI6N3ql7utujBuPXLSHhlhdzu0y5scQLekeu7EeGTvoNdhPQaFybdmbEc2zYVUJTuLQxfkdidBBVZ_ogEW-yhb-w" />
+                        </div>
+                        <div>
+                            <h3 class="font-headline font-bold text-lg text-on-surface">Oakwood Shared Suite</h3>
+                            <p class="text-sm text-on-surface-variant flex items-center mt-1">
+                                <span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                12 Cedar Blvd, District 1, HCM
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <p class="font-headline font-extrabold text-primary">3.800.000đ</p>
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-[10px] font-bold bg-surface-container-highest text-on-surface-variant uppercase tracking-tighter">
+                            Paused
+                        </span>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <p class="text-sm font-medium text-on-surface-variant">Sep 28, 2023</p>
+                    </div>
+                    <div class="col-span-1 md:col-span-1">
+                        <p class="text-sm font-bold flex items-center">
+                            <span class="material-symbols-outlined text-sm mr-1 opacity-40">visibility</span>
+                            210
+                        </p>
+                    </div>
+                    <div class="col-span-1 md:col-span-2 flex justify-end items-center space-x-2">
+                        <button
+                            class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors">
+                            <span class="material-symbols-outlined">play_circle</span>
+                        </button>
+                        <button class="p-2 hover:bg-error/10 rounded-full text-error transition-colors">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Listing Row 3 -->
+            <div
+                class="bg-surface-container-lowest rounded-lg editorial-shadow p-4 md:p-6 transition-transform hover:-translate-y-1 duration-300">
+                <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
+                    <div class="col-span-1 md:col-span-5 flex items-center space-x-6">
+                        <div class="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-surface-container">
+                            <img class="w-full h-full object-cover" data-alt="Loft style apartment with large windows"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrSiyAiEfY2ZeApusqiI5GDncBCRdQEncz7wL40zZvsTc__DZUuL9t3-iQM6k5mbdIdPpLkzKRlC48wcwWw9zqHzPfC4LQzEVH2LG5Dr420-06rooeqMQK3GBb02afR_Uc5SHzbbAIZwYAMkk_kA_LdoJIcctfwTQ8fVea5eWXznxOMkGl7Np37tmQIsos6JMyr4lL-ycSd1Agakbd1OB5jjyoEkuo3p1RNxlUrx6egSArnZcfXIyBoMqiGtQnRqG7Ce2kfT5xxw" />
+                        </div>
+                        <div>
+                            <h3 class="font-headline font-bold text-lg text-on-surface">The Mossy Loft</h3>
+                            <p class="text-sm text-on-surface-variant flex items-center mt-1">
+                                <span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                88 Pine Ridge, District 7, HCM
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <p class="font-headline font-extrabold text-primary">6.500.000đ</p>
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-[10px] font-bold bg-primary-container text-on-primary-container uppercase tracking-tighter">
+                            Active
+                        </span>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <p class="text-sm font-medium text-on-surface-variant">Nov 05, 2023</p>
+                    </div>
+                    <div class="col-span-1 md:col-span-1">
+                        <p class="text-sm font-bold flex items-center">
+                            <span class="material-symbols-outlined text-sm mr-1 opacity-40">visibility</span>
+                            89
+                        </p>
+                    </div>
+                    <div class="col-span-1 md:col-span-2 flex justify-end items-center space-x-2">
+                        <button
+                            class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="p-2 hover:bg-surface-container rounded-full text-secondary transition-colors">
+                            <span class="material-symbols-outlined">pause_circle</span>
+                        </button>
+                        <button class="p-2 hover:bg-error/10 rounded-full text-error transition-colors">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Floating Action for Mobile -->
+        <div class="md:hidden fixed bottom-8 right-8">
+            <button
+                class="w-16 h-16 rounded-full bg-primary text-on-primary shadow-xl flex items-center justify-center active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-3xl">add</span>
+            </button>
+        </div>
+        <!-- Pagination / Footer Detail -->
+        <footer
+            class="mt-16 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-outline-variant/20 pt-8">
+            <p class="text-sm font-body text-on-surface-variant">Showing 3 of 12 listings</p>
+            <div class="flex items-center space-x-2">
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant disabled:opacity-30"
+                    disabled="">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-on-primary font-bold">1</button>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container text-on-surface">2</button>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container text-on-surface">3</button>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        </footer>
+    </main>
+</body>
+
+</html>
