@@ -36,6 +36,12 @@ identity:
 ai-service:
   base-url: ${AI_SERVICE_URL:http://localhost:8000}
 
+spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
 resilience4j:
   circuitbreaker:
     configs:
