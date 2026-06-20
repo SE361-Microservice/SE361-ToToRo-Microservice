@@ -1,0 +1,89 @@
+package com.totoro.community.service;
+
+import com.totoro.community.dto.CommunityPostResponse;
+import com.totoro.community.dto.CreateCommunityPostRequest;
+import com.totoro.community.dto.UpdateCommunityPostRequest;
+import com.totoro.community.entity.CommunityPost;
+import com.totoro.community.repository.CommunityPostRepository;
+import com.totoro.user.entity.User;
+import com.totoro.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class CommunityPostService {
+
+    private final CommunityPostRepository communityPostRepository;
+    private final UserRepository userRepository;
+
+    @Transactional
+    public CommunityPostResponse createPost(String email, CreateCommunityPostRequest request) {
+        User author = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user"));
+
+        CommunityPost post = CommunityPost.builder()
+                .author(author)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .listingId(request.getListingId())
+                .build();
+        return toResponse(communityPostRepository.save(post));
+    }
+
+    public List<CommunityPostResponse> getPosts() {
+        return communityPostRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public CommunityPostResponse getPostById(Long postId) {
+        CommunityPost post = communityPostRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bài viết"));
+        return toResponse(post);
+    }
+
+    @Transactional
+    public CommunityPostResponse updatePost(String email, Long postId, UpdateCommunityPostRequest request) {
+        CommunityPost post = communityPostRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bài viết"));
+
+        if (!post.getAuthor().getEmail().equals(email)) {
+            throw new IllegalArgumentException("Bạn không có quyền sửa bài viết này");
+        }
+
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+        post.setListingId(request.getListingId());
+        return toResponse(communityPostRepository.save(post));
+    }
+
+    @Transactional
+    public void deletePost(String email, Long postId) {
+        CommunityPost post = communityPostRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bài viết"));
+
+        if (!post.getAuthor().getEmail().equals(email)) {
+            throw new IllegalArgumentException("Bạn không có quyền xóa bài viết này");
+        }
+        communityPostRepository.delete(post);
+    }
+
+    private CommunityPostResponse toResponse(CommunityPost post) {
+        return CommunityPostResponse.builder()
+                .id(post.getId())
+                .authorId(post.getAuthor().getId())
+                .authorEmail(post.getAuthor().getEmail())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .listingId(post.getListingId())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .build();
+    }
+}
+
