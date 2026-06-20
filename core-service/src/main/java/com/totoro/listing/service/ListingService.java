@@ -6,6 +6,8 @@ import com.totoro.listing.repository.ListingRepository;
 import com.totoro.listing.repository.TagRepository;
 import com.totoro.review.repository.ReviewRepository;
 import com.totoro.internal.service.AiServiceWebhookClient;
+import com.totoro.outbox.entity.OutboxEvent;
+import com.totoro.outbox.entity.OutboxEventStatus;
 
 import com.totoro.common.dto.UserProfileDto;
 import com.totoro.common.dto.UserProfileDto;
@@ -32,6 +34,8 @@ public class ListingService {
     
     private final ReviewRepository reviewRepository;
     private final AiServiceWebhookClient aiServiceWebhookClient;
+    private final com.totoro.outbox.repository.OutboxEventRepository outboxEventRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     // ==================== CREATE ====================
 
@@ -103,6 +107,25 @@ public class ListingService {
         }
 
         listing = listingRepository.save(listing);
+
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("listingId", listing.getId());
+            payload.put("landlordId", listing.getLandlordId());
+            payload.put("status", listing.getStatus().name());
+
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .aggregateType("LISTING")
+                    .aggregateId(String.valueOf(listing.getId()))
+                    .eventType("LISTING_CREATED")
+                    .payload(objectMapper.writeValueAsString(payload))
+                    .status(OutboxEventStatus.PENDING)
+                    .build();
+            outboxEventRepository.save(outboxEvent);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save outbox event", e);
+        }
+
         return toDetailResponse(listing);
     }
 
