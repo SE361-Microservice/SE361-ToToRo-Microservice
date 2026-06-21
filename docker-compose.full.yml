@@ -52,37 +52,38 @@ services:
   # =========================================================
   # 2. EVENT STREAMING INFRASTRUCTURE
   # =========================================================
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
-    container_name: totoro-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    networks:
-      - totoro-network
-
-  kafka:
-    image: confluentinc/cp-kafka:7.4.0
-    container_name: totoro-kafka
-    depends_on:
-      - zookeeper
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.2.19
+    container_name: totoro-redpanda
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:29092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:29092
     ports:
       - "9092:9092"
       - "29092:29092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      - "9644:9644"
     networks:
       - totoro-network
+    restart: unless-stopped
+
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.3.1
+    container_name: totoro-redpanda-console
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    depends_on:
+      - redpanda
+    networks:
+      - totoro-network
+    restart: unless-stopped
 
   # =========================================================
   # 3. MICROSERVICES (Optional - can run locally via IDE)
@@ -98,11 +99,11 @@ services:
   #     - SPRING_DATASOURCE_URL=jdbc:postgresql://core-db:5432/core_db
   #     - SPRING_DATASOURCE_USERNAME=root
   #     - SPRING_DATASOURCE_PASSWORD=password
-  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
   #     - IDENTITY_SERVICE_URL=http://identity-service:8081
   #   depends_on:
   #     - core-db
-  #     - kafka
+  #     - redpanda
   #   networks:
   #     - totoro-network
 
@@ -115,10 +116,10 @@ services:
   #     - SPRING_DATASOURCE_URL=jdbc:postgresql://social-db:5432/social_db
   #     - SPRING_DATASOURCE_USERNAME=root
   #     - SPRING_DATASOURCE_PASSWORD=password
-  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
   #   depends_on:
   #     - social-db
-  #     - kafka
+  #     - redpanda
   #   networks:
   #     - totoro-network
 
