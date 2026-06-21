@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: social-config
+  namespace: totoro
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://social-db:5432/social_db"
+  DB_USERNAME: "root"
+  DB_PASSWORD: "password"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "redpanda:9092"
+  CORE_SERVICE_URL: "http://core-service:8082"
+  IDENTITY_SERVICE_URL: "http://identity-service:8081"

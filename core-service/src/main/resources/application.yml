@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/core_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -25,6 +25,11 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
 app:
   # Internal API key for service-to-service auth (AI Service <-> Backend)
   internal-api-key: ${INTERNAL_API_KEY:}
@@ -36,11 +41,15 @@ identity:
 ai-service:
   base-url: ${AI_SERVICE_URL:http://localhost:8000}
 
-spring:
-  cloud:
-    openfeign:
-      circuitbreaker:
-        enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,info
+  endpoint:
+    health:
+      show-details: always
 
 resilience4j:
   circuitbreaker:
@@ -51,11 +60,17 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
+    instances:
+      userServiceCB:
+        baseConfig: default
   retry:
     configs:
       default:
         maxAttempts: 3
         waitDuration: 500ms
+    instances:
+      userServiceCB:
+        baseConfig: default
 
 ---
 spring:

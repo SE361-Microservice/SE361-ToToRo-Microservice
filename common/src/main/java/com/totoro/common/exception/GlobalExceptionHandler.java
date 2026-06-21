@@ -54,11 +54,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleException(
             Exception ex,
             HttpServletRequest request) {
+        ex.printStackTrace();
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Lỗi hệ thống, vui lòng thử lại sau")
+                .message("DEBUG ERROR: " + ex.toString())
                 .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5435/social_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -41,6 +41,15 @@ core:
   service:
     url: ${CORE_SERVICE_URL:http://localhost:8082}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,info
+  endpoint:
+    health:
+      show-details: always
+
 resilience4j:
   circuitbreaker:
     configs:
@@ -50,6 +59,11 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
 
 ---
 spring:
