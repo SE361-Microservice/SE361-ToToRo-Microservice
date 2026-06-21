@@ -30,6 +30,16 @@ spring:
       circuitbreaker:
         enabled: true
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: social-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
 app:
   internal-api-key: ${INTERNAL_API_KEY:}
 
@@ -40,6 +50,18 @@ identity:
 core:
   service:
     url: ${CORE_SERVICE_URL:http://localhost:8082}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  info:
+    title: Social Service API
+    description: API cho các nghiệp vụ xã hội - Chat, Thông báo, Matching
+    version: 1.0.0
 
 management:
   endpoints:
@@ -64,19 +86,3 @@ resilience4j:
       default:
         maxAttempts: 3
         waitDuration: 500ms
-
----
-spring:
-  config:
-    activate:
-      on-profile: kafka
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
-    consumer:
-      group-id: social-service-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-

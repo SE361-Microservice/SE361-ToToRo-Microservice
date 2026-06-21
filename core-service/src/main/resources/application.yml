@@ -30,6 +30,12 @@ spring:
       circuitbreaker:
         enabled: true
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 app:
   # Internal API key for service-to-service auth (AI Service <-> Backend)
   internal-api-key: ${INTERNAL_API_KEY:}
@@ -40,6 +46,18 @@ identity:
 
 ai-service:
   base-url: ${AI_SERVICE_URL:http://localhost:8000}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  info:
+    title: Core Service API
+    description: API cho các nghiệp vụ cốt lõi - Phòng trọ, Đánh giá, Báo cáo
+    version: 1.0.0
 
 
 management:
@@ -71,15 +89,3 @@ resilience4j:
     instances:
       userServiceCB:
         baseConfig: default
-
----
-spring:
-  config:
-    activate:
-      on-profile: kafka
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
