@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-service
+  namespace: totoro
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: social-service
+  template:
+    metadata:
+      labels:
+        app: social-service
+    spec:
+      containers:
+        - name: social-service
+          image: totoro/social-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: social-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 15
+            periodSeconds: 5

@@ -50,6 +50,51 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodNotSupportedException(
+            org.springframework.web.HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .error(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+    }
+
+    @ExceptionHandler({
+            org.springframework.web.bind.MissingRequestHeaderException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handleMissingParams(
+            Exception ex,
+            HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Thiếu tham số hoặc header bắt buộc: " + ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNoResourceFoundException(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex,
+            HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .message("Đường dẫn hoặc tài nguyên không tồn tại")
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(
             Exception ex,

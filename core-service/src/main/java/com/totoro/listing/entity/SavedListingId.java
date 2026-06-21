@@ -11,7 +11,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class SavedListingId implements Serializable {
 
-    private Long user;
+    private Long userId;
     private Long listing;
 
     @Override
@@ -19,11 +19,11 @@ public class SavedListingId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SavedListingId that = (SavedListingId) o;
-        return Objects.equals(user, that.user) && Objects.equals(listing, that.listing);
+        return Objects.equals(userId, that.userId) && Objects.equals(listing, that.listing);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, listing);
+        return Objects.hash(userId, listing);
     }
 }
