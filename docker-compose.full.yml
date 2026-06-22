@@ -110,8 +110,8 @@ services:
   # =========================================================
   identity-service:
     build:
-      context: ./identity-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: identity-service/Dockerfile
     container_name: totoro-identity-service
     ports:
       - "8081:8081"
@@ -135,8 +135,8 @@ services:
 
   core-service:
     build:
-      context: ./core-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: core-service/Dockerfile
     container_name: totoro-core-service
     ports:
       - "8082:8082"
@@ -158,8 +158,8 @@ services:
 
   social-service:
     build:
-      context: ./social-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: social-service/Dockerfile
     container_name: totoro-social-service
     ports:
       - "8083:8083"
@@ -182,8 +182,8 @@ services:
 
   gateway-service:
     build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: gateway-service/Dockerfile
     container_name: totoro-gateway-service
     ports:
       - "8080:8080"

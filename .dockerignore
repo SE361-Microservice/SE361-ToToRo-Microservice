@@ -1,0 +1,9 @@
+# Dockerignore for ToToRo monorepo
+**/target/
+**/node_modules/
+.git/
+.github/
+.idea/
+.vscode/
+*.md
+docker-compose*.yml

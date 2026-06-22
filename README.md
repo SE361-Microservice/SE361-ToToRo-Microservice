@@ -22,21 +22,20 @@ Mọi client (Frontend React, Mobile, Postman) đều gọi qua **gateway-servic
 
 ## 🛠️ Hạ Tầng Dùng Chung (Infrastructure Stack)
 
-Môi trường phát triển local sử dụng Docker Compose để chạy các cơ sở dữ liệu và hệ thống thông báo, giám sát.
+Môi trường phát triển local sử dụng Docker Compose để chạy các cơ sở dữ liệu, Redpanda, và hệ thống giám sát Observability.
 
 ### Danh Sách Containers & Port Hoạt Động:
 
 | Dịch vụ | Container Name | Port ngoài | Vai trò |
 | :--- | :--- | :--- | :--- |
-| **identity-db** | `totoro-identity-db` | `5433` | PostgreSQL lưu thông tin User & Auth |
-| **core-db** | `totoro-core-db` | `5434` | PostgreSQL lưu thông tin Listing (phòng trọ) |
-| **social-db** | `totoro-social-db` | `5435` | PostgreSQL lưu Review, Community, Chat, Notification |
-| **zookeeper** | `totoro-zookeeper` | `2181` | Quản lý trạng thái cho Apache Kafka |
-| **kafka** | `totoro-kafka` | `9092` | Message Broker dùng cho mô hình Event-Driven |
-| **kafka-ui** | `totoro-kafka-ui` | `8089` | Giao diện quản lý & debug các Topics, Messages |
-| **jaeger** | `totoro-jaeger` | `16686` | Distributed Tracing (Quản lý vết request) |
-| **prometheus** | `totoro-prometheus` | `9090` | Thu thập metrics hiệu năng hệ thống |
-| **grafana** | `totoro-grafana` | `3000` | Trực quan hóa số liệu (Dashboards) |
+| **identity-db** | `totoro-identity-db` | `5433` (local) / `5432` (internal) | PostgreSQL lưu thông tin User & Auth |
+| **core-db** | `totoro-core-db` | `5434` (local) / `5432` (internal) | PostgreSQL lưu thông tin Listing (phòng trọ) |
+| **social-db** | `totoro-social-db` | `5435` (local) / `5432` (internal) | PostgreSQL lưu Review, Community, Chat, Notification |
+| **redpanda** | `totoro-redpanda` | `9092` (internal) / `29092` (local) | Message Broker hiệu năng cao (tương thích Kafka API) |
+| **redpanda-console** | `totoro-redpanda-console` | `8088` | Giao diện Web quản trị & debug Topics, Messages |
+| **jaeger** | `totoro-jaeger` | `16686` (UI) / `4318` (OTLP HTTP) | Distributed Tracing (Thu thập trace requests chéo service) |
+| **prometheus** | `totoro-prometheus` | `9090` | Thu thập metrics hiệu năng từ `/actuator/prometheus` |
+| **grafana** | `totoro-grafana` | `3001` (admin/admin) | Dashboard trực quan hóa số liệu (đã cấu hình sẵn data sources) |
 
 ---
 
@@ -44,21 +43,26 @@ Môi trường phát triển local sử dụng Docker Compose để chạy các 
 
 Đảm bảo bạn đã cài đặt [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
-1. **Khởi động toàn bộ Database, Kafka và Observability Tools**:
-   ```bash
-   docker compose up -d
-   ```
+Có hai cách khởi chạy tùy theo nhu cầu phát triển:
 
-2. **Kiểm tra trạng thái các container**:
-   ```bash
-   docker compose ps
-   ```
+### Cách 1: Chỉ khởi chạy các Database & Broker (Khuyên dùng khi chạy code IntelliJ/Eclipse để debug)
+```bash
+# Khởi chạy databases, redpanda, jaeger, prometheus, grafana
+docker compose up -d
+```
 
-3. **Truy cập các công cụ hỗ trợ qua trình duyệt**:
-   * **Kafka UI**: [http://localhost:8089](http://localhost:8089)
-   * **Jaeger UI**: [http://localhost:16686](http://localhost:16686)
-   * **Prometheus UI**: [http://localhost:9090](http://localhost:9090)
-   * **Grafana Dashboard**: [http://localhost:3000](http://localhost:3000) *(User/Password mặc định: `admin` / `admin`)*
+### Cách 2: Khởi chạy toàn bộ hệ thống (gồm cả 4 Microservices chạy bằng container)
+```bash
+# Build và chạy tất cả services + databases + monitoring
+docker compose -f docker-compose.full.yml up -d --build
+```
+
+### Truy cập các công cụ qua trình duyệt:
+* **Redpanda Console**: [http://localhost:8088](http://localhost:8088)
+* **Jaeger Tracing UI**: [http://localhost:16686](http://localhost:16686)
+* **Prometheus Metrics**: [http://localhost:9090](http://localhost:9090)
+* **Grafana Dashboards**: [http://localhost:3001](http://localhost:3001) *(User: `admin` / Password: `admin`)*
+  * Chọn dashboard **ToToRo Microservices Overview** đã được cấu hình sẵn.
 
 ---
 
@@ -101,3 +105,21 @@ SE361-ToToRo-Microservice/
    ```
    * Frontend chạy ở [http://localhost:5173](http://localhost:5173) và tự động kết nối tới gateway tại `http://localhost:8080`.
    * `VITE_API_URL` trong `frontend/.env` đã được cấu hình sẵn, không cần thay đổi.
+
+---
+
+## 🔁 Quy Trình CI/CD Pipeline (GitHub Actions)
+
+Hệ thống được tích hợp quy trình tích hợp và triển khai liên tục (CI/CD) tự động thông qua **GitHub Actions** (`.github/workflows/ci-cd.yml`):
+
+1. **Khi Pull Request hoặc Push lên các nhánh (`main`, `master`, `dev`, `feature/*`)**:
+   * Tự động khởi dựng môi trường Java 21 (Temurin).
+   * Cache dependencies giúp tối ưu thời gian build.
+   * Biên dịch và chạy toàn bộ unit tests bằng Maven (`mvn clean install`).
+2. **Khi Merge/Push trực tiếp vào nhánh chạy chính (`main`, `master`, `dev`)**:
+   * Thực hiện build JAR file cho từng microservice.
+   * Xây dựng Docker Image tối ưu (sử dụng Multi-stage builds, JRE 21 alpine siêu nhẹ, chạy bằng non-root user bảo mật).
+   * Tự động đẩy (Push) các Docker Images lên **GitHub Container Registry (GHCR)** dưới dạng:
+     * `ghcr.io/<github-username>/se361-totoro-microservice/<service-name>:latest`
+     * `ghcr.io/<github-username>/se361-totoro-microservice/<service-name>:<commit-sha>`
+

@@ -1,24 +1,30 @@
 # Multi-stage build — core-service
-# Stage 1: Build
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Cache dependencies first (layer optimization)
+# Copy parent POM and all module POMs to cache dependencies
 COPY pom.xml .
-COPY ../pom.xml ../pom.xml
-RUN mvn dependency:go-offline -q || true
+COPY common/pom.xml common/
+COPY identity-service/pom.xml identity-service/
+COPY core-service/pom.xml core-service/
+COPY social-service/pom.xml social-service/
+COPY gateway-service/pom.xml gateway-service/
 
-COPY src ./src
-RUN mvn clean package -DskipTests -q
+RUN mvn dependency:go-offline -B -q || true
 
-# Stage 2: Runtime (slim JRE)
+# Copy sources needed for build
+COPY common/src common/src
+COPY core-service/src core-service/src
+
+RUN mvn clean package -pl core-service -am -DskipTests -B -q
+
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-COPY --from=build /build/target/core-service-*.jar app.jar
+COPY --from=build /build/core-service/target/core-service-*.jar app.jar
 
 EXPOSE 8082
 ENTRYPOINT ["java", "-jar", "app.jar"]
