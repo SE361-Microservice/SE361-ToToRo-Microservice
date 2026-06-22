@@ -5,7 +5,8 @@ metadata:
   namespace: totoro
 data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://core-db:5432/core_db"
-  DB_USERNAME: "postgres"
-  DB_PASSWORD: "postgres"
+  DB_USERNAME: "root"
+  DB_PASSWORD: "password"
   IDENTITY_SERVICE_URL: "http://identity-service:8081"
-  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "redpanda:9092"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318/v1/traces"

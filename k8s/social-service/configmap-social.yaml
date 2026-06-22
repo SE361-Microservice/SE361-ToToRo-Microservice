@@ -10,3 +10,4 @@ data:
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "redpanda:9092"
   CORE_SERVICE_URL: "http://core-service:8082"
   IDENTITY_SERVICE_URL: "http://identity-service:8081"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318/v1/traces"

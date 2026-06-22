@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-config
+  namespace: totoro
+data:
+  SERVER_PORT: "8081"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://identity-db:5432/identity_db"
+  DB_USERNAME: "root"
+  DB_PASSWORD: "password"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "redpanda:9092"
+  IDENTITY_SERVICE_URL: "http://identity-service:8081"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318/v1/traces"
+  FRONTEND_OAUTH2_REDIRECT_URL: "http://localhost:3000/oauth2/redirect"
+  FRONTEND_RESET_PASSWORD_URL: "http://localhost:3000/reset-password"
+  FRONTEND_VERIFY_EMAIL_URL: "http://identity-service:8081/api/auth/verify"

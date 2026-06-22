@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  namespace: totoro
+data:
+  SERVER_PORT: "8080"
+  IDENTITY_SERVICE_URL: "http://identity-service:8081"
+  CORE_SERVICE_URL: "http://core-service:8082"
+  SOCIAL_SERVICE_URL: "http://social-service:8083"
+  SOCIAL_SERVICE_WS_URL: "ws://social-service:8083"
+  ALLOWED_ORIGIN: "http://localhost:3000"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318/v1/traces"
