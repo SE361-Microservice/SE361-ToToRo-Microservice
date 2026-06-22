@@ -123,6 +123,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       identity-db:
         condition: service_healthy
@@ -145,6 +146,7 @@ services:
       DB_PASSWORD: password
       SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
       IDENTITY_SERVICE_URL: http://identity-service:8081
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       core-db:
         condition: service_healthy
@@ -168,6 +170,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
       IDENTITY_SERVICE_URL: http://identity-service:8081
       CORE_SERVICE_URL: http://core-service:8082
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       social-db:
         condition: service_healthy
@@ -189,10 +192,60 @@ services:
       CORE_SERVICE_URL: http://core-service:8082
       SOCIAL_SERVICE_URL: http://social-service:8083
       JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       - identity-service
       - core-service
       - social-service
+    networks:
+      - totoro-network
+    restart: unless-stopped
+
+  # =========================================================
+  # 4. OBSERVABILITY
+  # =========================================================
+  jaeger:
+    image: jaegertracing/all-in-one:1.55
+    container_name: totoro-jaeger
+    ports:
+      - "16686:16686"  # Jaeger Web UI
+      - "4317:4317"    # OTLP gRPC receiver
+      - "4318:4318"    # OTLP HTTP receiver
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    networks:
+      - totoro-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: totoro-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - identity-service
+      - core-service
+      - social-service
+      - gateway-service
+    networks:
+      - totoro-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: totoro-grafana
+    ports:
+      - "3001:3000"  # 3000 reserved for frontend dev server
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
     networks:
       - totoro-network
     restart: unless-stopped
@@ -205,3 +258,4 @@ volumes:
   identity_db_data:
   core_db_data:
   social_db_data:
+  grafana_data:

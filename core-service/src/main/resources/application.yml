@@ -64,10 +64,27 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,circuitbreakers,info
+        include: health,info,circuitbreakers,prometheus,metrics
   endpoint:
     health:
       show-details: always
+  # Pillar 2: Metrics — Prometheus scrapes /actuator/prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  # Pillar 3: Distributed Tracing — OTLP → Jaeger
+  tracing:
+    sampling:
+      probability: 1.0  # 100% sampling in dev; lower in prod
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+# Pillar 1: Structured Logging — trace/span IDs injected by Micrometer Tracing
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 resilience4j:
   circuitbreaker:

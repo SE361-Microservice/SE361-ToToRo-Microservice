@@ -74,10 +74,24 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,circuitbreakers,metrics
+        include: health,info,circuitbreakers,prometheus,metrics
   endpoint:
     health:
       show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 resilience4j:
   circuitbreaker:
