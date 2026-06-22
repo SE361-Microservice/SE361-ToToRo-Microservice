@@ -115,6 +115,13 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
+        
+        // WebSocket query parameter fallback
+        String queryToken = request.getQueryParams().getFirst("token");
+        if (StringUtils.hasText(queryToken)) {
+            return queryToken;
+        }
+        
         return null;
     }
 
