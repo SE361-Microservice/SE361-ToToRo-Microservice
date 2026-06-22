@@ -1,7 +1,7 @@
 package com.totoro.notification.service;
 
-import com.totoro.auth.service.EmailService;
-import com.totoro.listing.dto.PageResponse;import com.totoro.notification.dto.NotificationResponse;
+import com.totoro.common.dto.PageResponse;
+import com.totoro.notification.dto.NotificationResponse;
 import com.totoro.notification.dto.UnreadCountResponse;
 import com.totoro.notification.entity.Notification;
 import com.totoro.notification.entity.NotificationType;
@@ -39,7 +39,6 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final EmailService emailService;
 
     // ==================== EVENT PROCESSING ====================
 
@@ -102,8 +101,8 @@ public class NotificationService {
     /**
      * Get paginated notifications for the current user.
      */
-    public PageResponse<NotificationResponse> getNotifications(String email, Pageable pageable) {
-        User user = findUserByEmail(email);
+    public PageResponse<NotificationResponse> getNotifications(Long userId, Pageable pageable) {
+        User user = findUserById(userId);
         Page<Notification> page = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
 
         List<NotificationResponse> content = page.getContent().stream()
@@ -123,8 +122,8 @@ public class NotificationService {
     /**
      * Get unread notification count for the current user.
      */
-    public UnreadCountResponse getUnreadCount(String email) {
-        User user = findUserByEmail(email);
+    public UnreadCountResponse getUnreadCount(Long userId) {
+        User user = findUserById(userId);
         long count = notificationRepository.countByUserIdAndIsReadFalse(user.getId());
         return UnreadCountResponse.builder().count(count).build();
     }
@@ -133,8 +132,8 @@ public class NotificationService {
      * Mark a single notification as read.
      */
     @Transactional
-    public void markAsRead(String email, Long notificationId) {
-        User user = findUserByEmail(email);
+    public void markAsRead(Long userId, Long notificationId) {
+        User user = findUserById(userId);
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
 
@@ -150,23 +149,22 @@ public class NotificationService {
      * Mark all notifications as read for the current user.
      */
     @Transactional
-    public int markAllAsRead(String email) {
-        User user = findUserByEmail(email);
+    public int markAllAsRead(Long userId) {
+        User user = findUserById(userId);
         return notificationRepository.markAllAsRead(user.getId());
     }
 
     // ==================== HELPERS ====================
 
-    private User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     private void sendNotificationEmail(NotificationEvent event) {
         String subject = event.getTitle() + " — ToToRo";
         String htmlContent = buildEmailHtml(event);
-        // Reuse the existing EmailService's pattern
-        emailService.sendNotificationEmail(event.getRecipientEmail(), subject, htmlContent);
+        log.info("MOCK Email sent to {}: {}", event.getRecipientEmail(), subject);
     }
 
     private String buildEmailHtml(NotificationEvent event) {

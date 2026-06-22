@@ -1,6 +1,7 @@
 package com.totoro.notification.controller;
 
-import com.totoro.listing.dto.PageResponse;import com.totoro.notification.dto.NotificationResponse;
+import com.totoro.common.dto.PageResponse;
+import com.totoro.notification.dto.NotificationResponse;
 import com.totoro.notification.dto.UnreadCountResponse;
 import com.totoro.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,8 @@ public class NotificationController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        String email = String.valueOf(userId);
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(notificationService.getNotifications(email, pageable));
+        return ResponseEntity.ok(notificationService.getNotifications(userId, pageable));
     }
 
     /**
@@ -37,8 +37,7 @@ public class NotificationController {
      */
     @GetMapping("/unread-count")
     public ResponseEntity<UnreadCountResponse> getUnreadCount(@RequestHeader("X-User-Id") Long userId) {
-        String email = String.valueOf(userId);
-        return ResponseEntity.ok(notificationService.getUnreadCount(email));
+        return ResponseEntity.ok(notificationService.getUnreadCount(userId));
     }
 
     /**
@@ -48,8 +47,7 @@ public class NotificationController {
     public ResponseEntity<Map<String, String>> markAsRead(
             @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long id) {
-        String email = String.valueOf(userId);
-        notificationService.markAsRead(email, id);
+        notificationService.markAsRead(userId, id);
         return ResponseEntity.ok(Map.of("message", "Notification marked as read"));
     }
 
@@ -58,8 +56,7 @@ public class NotificationController {
      */
     @PatchMapping("/read-all")
     public ResponseEntity<Map<String, Object>> markAllAsRead(@RequestHeader("X-User-Id") Long userId) {
-        String email = String.valueOf(userId);
-        int count = notificationService.markAllAsRead(email);
+        int count = notificationService.markAllAsRead(userId);
         return ResponseEntity.ok(Map.of(
                 "message", "All notifications marked as read",
                 "count", count

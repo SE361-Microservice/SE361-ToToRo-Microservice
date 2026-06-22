@@ -4,7 +4,7 @@ import com.totoro.listing.dto.*;
 import com.totoro.listing.entity.*;
 import com.totoro.listing.repository.ListingRepository;
 import com.totoro.listing.repository.TagRepository;
-import com.totoro.review.repository.ReviewRepository;
+
 import com.totoro.internal.service.AiServiceWebhookClient;
 import com.totoro.outbox.entity.OutboxEvent;
 import com.totoro.outbox.entity.OutboxEventStatus;
@@ -32,7 +32,6 @@ public class ListingService {
     private final TagRepository tagRepository;
     private final UserServiceClient userServiceClient;
     
-    private final ReviewRepository reviewRepository;
     private final AiServiceWebhookClient aiServiceWebhookClient;
     private final com.totoro.outbox.repository.OutboxEventRepository outboxEventRepository;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
@@ -222,6 +221,25 @@ public class ListingService {
         listing.setStatus(ListingStatus.PENDING);
 
         listing = listingRepository.save(listing);
+
+        // Publish listing-updated event so social-service can sync listing_cache
+        try {
+            Map<String, Object> updPayload = new HashMap<>();
+            updPayload.put("listingId", listing.getId());
+            updPayload.put("title", listing.getTitle());
+            updPayload.put("address", listing.getAddress());
+            OutboxEvent updEvent = OutboxEvent.builder()
+                    .aggregateType("LISTING")
+                    .aggregateId(String.valueOf(listing.getId()))
+                    .eventType("LISTING_UPDATED")
+                    .payload(objectMapper.writeValueAsString(updPayload))
+                    .status(OutboxEventStatus.PENDING)
+                    .build();
+            outboxEventRepository.save(updEvent);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save outbox event for listing-updated", e);
+        }
+
         return toDetailResponse(listing);
     }
 
@@ -238,6 +256,22 @@ public class ListingService {
 
         listing.setStatus(ListingStatus.INACTIVE);
         listingRepository.save(listing);
+
+        // Publish listing-deleted event so social-service can purge listing_cache
+        try {
+            Map<String, Object> delPayload = new HashMap<>();
+            delPayload.put("listingId", listing.getId());
+            OutboxEvent delEvent = OutboxEvent.builder()
+                    .aggregateType("LISTING")
+                    .aggregateId(String.valueOf(listing.getId()))
+                    .eventType("LISTING_DELETED")
+                    .payload(objectMapper.writeValueAsString(delPayload))
+                    .status(OutboxEventStatus.PENDING)
+                    .build();
+            outboxEventRepository.save(delEvent);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save outbox event for listing-deleted", e);
+        }
     }
 
     // ==================== READ ====================
@@ -440,31 +474,15 @@ public class ListingService {
     }
 
     /**
-     * Batch query ratings for a list of listings and populate into summary responses.
-     * Avoids N+1 queries by fetching all ratings in a single query.
+     * Rating enrichment has been moved to social-service (reviews now live in social_db).
+     * Ratings can be retrieved via social-service API /api/reviews?listingId=... if needed.
+     * For now we set defaults to avoid breaking the response shape.
      */
     private void enrichWithRatings(List<ListingSummaryResponse> responses, List<Listing> listings) {
-        if (responses.isEmpty()) return;
-
-        List<Long> listingIds = listings.stream().map(Listing::getId).collect(Collectors.toList());
-        List<Object[]> ratingData = reviewRepository.findAvgRatingAndCountByListingIds(listingIds);
-
-        // Build map: listingId -> [avgRating, count]
-        Map<Long, Object[]> ratingMap = new HashMap<>();
-        for (Object[] row : ratingData) {
-            ratingMap.put((Long) row[0], row);
-        }
-
-        for (ListingSummaryResponse response : responses) {
-            Object[] data = ratingMap.get(response.getId());
-            if (data != null) {
-                response.setAvgRating(((Number) data[1]).doubleValue());
-                response.setReviewCount(((Number) data[2]).intValue());
-            } else {
-                response.setAvgRating(null);
-                response.setReviewCount(0);
-            }
-        }
+        responses.forEach(r -> {
+            if (r.getAvgRating() == null) r.setAvgRating(null);
+            if (r.getReviewCount() == null) r.setReviewCount(0);
+        });
     }
 
     private PolicyResponse toPolicyResponse(ListingPolicy p) {

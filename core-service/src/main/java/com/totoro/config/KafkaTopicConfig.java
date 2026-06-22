@@ -17,8 +17,16 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic reviewCreatedTopic() {
-        return TopicBuilder.name("review-created")
+    public NewTopic listingUpdatedTopic() {
+        return TopicBuilder.name("listing-updated")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic listingDeletedTopic() {
+        return TopicBuilder.name("listing-deleted")
                 .partitions(3)
                 .replicas(1)
                 .build();
