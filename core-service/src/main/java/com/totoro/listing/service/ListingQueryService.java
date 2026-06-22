@@ -1,6 +1,6 @@
 package com.totoro.listing.service;
 
-import com.totoro.common.dto.PageResponse;
+import com.totoro.listing.dto.PageResponse;
 import com.totoro.common.dto.UserProfileDto;
 import com.totoro.internal.user.UserServiceClient;
 import com.totoro.listing.dto.*;
