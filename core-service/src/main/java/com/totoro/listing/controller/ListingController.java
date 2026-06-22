@@ -1,7 +1,8 @@
 package com.totoro.listing.controller;
 
 import com.totoro.listing.dto.*;
-import com.totoro.listing.service.ListingService;
+import com.totoro.listing.service.ListingCommandService;
+import com.totoro.listing.service.ListingQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -10,59 +11,64 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestHeader;
 
+/**
+ * REST controller for listing operations.
+ * Follows CQRS: write endpoints delegate to ListingCommandService,
+ * read endpoints delegate to ListingQueryService.
+ */
 @RestController
 @RequestMapping("/api/listings")
 @RequiredArgsConstructor
 public class ListingController {
 
-    private final ListingService listingService;
+    // CQRS: separate command and query services
+    private final ListingCommandService commandService;
+    private final ListingQueryService queryService;
 
-    /**
-     * Create a new listing. Only LANDLORD or ADMIN.
-     */
+    // ===== COMMANDS (writes) =====
+
     @PostMapping
     public ResponseEntity<ListingDetailResponse> createListing(
             @RequestHeader("X-User-Id") Long userId,
             @Valid @RequestBody CreateListingRequest request) {
-        ListingDetailResponse response = listingService.createListing(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(commandService.createListing(userId, request));
     }
 
-    /**
-     * Update an existing listing. Owner only.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ListingDetailResponse> updateListing(
             @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long id,
             @Valid @RequestBody UpdateListingRequest request) {
-        return ResponseEntity.ok(listingService.updateListing(userId, id, request));
+        return ResponseEntity.ok(commandService.updateListing(userId, id, request));
     }
 
-    /**
-     * Soft-delete (set INACTIVE). Owner or ADMIN.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteListing(
             @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long id) {
-        listingService.deleteListing(userId, id);
+        commandService.deleteListing(userId, id);
         return ResponseEntity.ok("Listing has been deactivated");
     }
 
-    /**
-     * Get listing detail by ID. Public endpoint.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<ListingDetailResponse> getListingById(@PathVariable Long id) {
-        return ResponseEntity.ok(listingService.getListingById(id));
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<ListingDetailResponse> activateListing(@PathVariable Long id) {
+        return ResponseEntity.ok(commandService.activateListing(id));
     }
 
-    /**
-     * Get current user's listings (paginated).
-     */
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<ListingDetailResponse> rejectListing(@PathVariable Long id) {
+        return ResponseEntity.ok(commandService.rejectListing(id));
+    }
+
+    // ===== QUERIES (reads) =====
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ListingDetailResponse> getListingById(@PathVariable Long id) {
+        return ResponseEntity.ok(queryService.getListingById(id));
+    }
+
     @GetMapping("/my")
     public ResponseEntity<PageResponse<ListingSummaryResponse>> getMyListings(
             @RequestHeader("X-User-Id") Long userId,
@@ -72,13 +78,10 @@ public class ListingController {
             @RequestParam(defaultValue = "desc") String sortDir) {
         Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return ResponseEntity.ok(listingService.getMyListings(userId, pageable));
+        return ResponseEntity.ok(queryService.getMyListings(userId, pageable));
     }
 
-    /**
-     * Get all pending listings. ADMIN only.
-     */
-        @GetMapping("/pending")
+    @GetMapping("/pending")
     public ResponseEntity<PageResponse<ListingSummaryResponse>> getPendingListings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -86,22 +89,6 @@ public class ListingController {
             @RequestParam(defaultValue = "desc") String sortDir) {
         Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return ResponseEntity.ok(listingService.getPendingListings(pageable));
-    }
-
-    /**
-     * Activate (approve) a listing. ADMIN only.
-     */
-        @PatchMapping("/{id}/activate")
-    public ResponseEntity<ListingDetailResponse> activateListing(@PathVariable Long id) {
-        return ResponseEntity.ok(listingService.activateListing(id));
-    }
-
-    /**
-     * Reject a listing. ADMIN only.
-     */
-        @PatchMapping("/{id}/reject")
-    public ResponseEntity<ListingDetailResponse> rejectListing(@PathVariable Long id) {
-        return ResponseEntity.ok(listingService.rejectListing(id));
+        return ResponseEntity.ok(queryService.getPendingListings(pageable));
     }
 }

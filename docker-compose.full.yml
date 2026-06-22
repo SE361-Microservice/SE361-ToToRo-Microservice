@@ -1,9 +1,11 @@
+version: '3.8'
+
 services:
   # =========================================================
-  # 1. DATABASE INFRASTRUCTURE
+  # 1. DATABASES
   # =========================================================
   identity-db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: totoro-identity-db
     environment:
       POSTGRES_USER: root
@@ -16,9 +18,14 @@ services:
     networks:
       - totoro-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d identity_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   core-db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: totoro-core-db
     environment:
       POSTGRES_USER: root
@@ -31,9 +38,14 @@ services:
     networks:
       - totoro-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d core_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   social-db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: totoro-social-db
     environment:
       POSTGRES_USER: root
@@ -46,9 +58,15 @@ services:
     networks:
       - totoro-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d social_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # =========================================================
-  # 2. EVENT STREAMING INFRASTRUCTURE
+  # 2. MESSAGE BROKER (Redpanda — Kafka-compatible)
+  # spring-kafka client works with Redpanda via Kafka Wire Protocol
   # =========================================================
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:v23.2.19
@@ -65,10 +83,14 @@ services:
     ports:
       - "9092:9092"
       - "29092:29092"
-      - "9644:9644"
     networks:
       - totoro-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster info --brokers=localhost:9092 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
   redpanda-console:
     image: docker.redpanda.com/redpandadata/console:v2.3.1
@@ -84,42 +106,96 @@ services:
     restart: unless-stopped
 
   # =========================================================
-  # 3. MICROSERVICES (Optional - can run locally via IDE)
+  # 3. MICROSERVICES
   # =========================================================
-  # To run services in docker, uncomment the following:
-  
-  # core-service:
-  #   build: ./core-service
-  #   container_name: totoro-core-service
-  #   ports:
-  #     - "8082:8082"
-  #   environment:
-  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://core-db:5432/core_db
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=password
-  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
-  #     - IDENTITY_SERVICE_URL=http://identity-service:8081
-  #   depends_on:
-  #     - core-db
-  #     - redpanda
-  #   networks:
-  #     - totoro-network
+  identity-service:
+    build:
+      context: ./identity-service
+      dockerfile: Dockerfile
+    container_name: totoro-identity-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://identity-db:5432/identity_db
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
+    depends_on:
+      identity-db:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - totoro-network
+    restart: unless-stopped
 
-  # social-service:
-  #   build: ./social-service
-  #   container_name: totoro-social-service
-  #   ports:
-  #     - "8083:8083"
-  #   environment:
-  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://social-db:5432/social_db
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=password
-  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
-  #   depends_on:
-  #     - social-db
-  #     - redpanda
-  #   networks:
-  #     - totoro-network
+  core-service:
+    build:
+      context: ./core-service
+      dockerfile: Dockerfile
+    container_name: totoro-core-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/core_db
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      IDENTITY_SERVICE_URL: http://identity-service:8081
+    depends_on:
+      core-db:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - totoro-network
+    restart: unless-stopped
+
+  social-service:
+    build:
+      context: ./social-service
+      dockerfile: Dockerfile
+    container_name: totoro-social-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://social-db:5432/social_db
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      IDENTITY_SERVICE_URL: http://identity-service:8081
+      CORE_SERVICE_URL: http://core-service:8082
+    depends_on:
+      social-db:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - totoro-network
+    restart: unless-stopped
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    container_name: totoro-gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      IDENTITY_SERVICE_URL: http://identity-service:8081
+      CORE_SERVICE_URL: http://core-service:8082
+      SOCIAL_SERVICE_URL: http://social-service:8083
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    depends_on:
+      - identity-service
+      - core-service
+      - social-service
+    networks:
+      - totoro-network
+    restart: unless-stopped
 
 networks:
   totoro-network:

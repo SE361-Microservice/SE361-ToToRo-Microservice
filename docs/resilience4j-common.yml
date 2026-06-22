@@ -1,0 +1,104 @@
+# =========================================================
+# resilience4j-common.yml — Shared Resilience4j Config
+# Copy relevant sections into each service's application.yml
+# =========================================================
+#
+# Pattern          | Annotation           | Protects against
+# -----------------+----------------------+----------------------------
+# CircuitBreaker   | @CircuitBreaker      | Cascade failure
+# Retry            | @Retry               | Transient failures (network blip)
+# TimeLimiter      | @TimeLimiter         | Thread starvation (slow service)
+# Bulkhead         | @Bulkhead            | Resource exhaustion (one slow service draining all threads)
+# IdempotentConsumer (Kafka) — via processed_event table in social-service
+#
+# References:
+#  - Thesis microservice-design-patterns Section 2.1.5
+#  - EShopMicroservices resilience patterns
+#  - Spring Boot docs: https://resilience4j.readme.io/docs/getting-started-3
+
+resilience4j:
+
+  # -------------------------------------------------------
+  # 1. CIRCUIT BREAKER
+  # Opens after 50% failure rate over 10 calls.
+  # Stays open 10s, then allows 3 probe calls in half-open state.
+  # -------------------------------------------------------
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+    instances:
+      # identity-service Feign calls (used by core-service)
+      identityCB:
+        baseConfig: default
+      # core-service Feign calls (used by social-service, if any)
+      coreCB:
+        baseConfig: default
+
+  # -------------------------------------------------------
+  # 2. RETRY
+  # Retries 3 times with 500ms wait for transient failures.
+  # Only retries on IOException and RetryableException (network issues).
+  # -------------------------------------------------------
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        retryExceptions:
+          - java.io.IOException
+          - feign.RetryableException
+    instances:
+      identityCB:
+        baseConfig: default
+      coreCB:
+        baseConfig: default
+
+  # -------------------------------------------------------
+  # 3. TIME LIMITER (Timeout)
+  # Cancels a call if it takes longer than 3 seconds.
+  # Prevents thread starvation from slow downstream services.
+  # -------------------------------------------------------
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+    instances:
+      identityCB:
+        baseConfig: default
+      coreCB:
+        baseConfig: default
+
+  # -------------------------------------------------------
+  # 4. BULKHEAD (Concurrency Limiter)
+  # Limits to 20 concurrent calls per named instance.
+  # Isolates thread pools so one slow service can't exhaust all threads.
+  # -------------------------------------------------------
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 100ms
+    instances:
+      identityCB:
+        baseConfig: default
+      coreCB:
+        baseConfig: default
+
+# -------------------------------------------------------
+# Expose actuator endpoints for Grafana / health dashboards
+# -------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,metrics
+  endpoint:
+    health:
+      show-details: always

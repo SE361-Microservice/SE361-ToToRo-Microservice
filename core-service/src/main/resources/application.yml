@@ -89,3 +89,17 @@ resilience4j:
     instances:
       userServiceCB:
         baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+    instances:
+      userServiceCB:
+        baseConfig: default
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
+    instances:
+      userServiceCB:
+        baseConfig: default

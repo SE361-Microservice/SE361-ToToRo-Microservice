@@ -9,8 +9,8 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_DB: identity_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
     volumes:
       - identity_db_data:/var/lib/postgresql/data
     networks:
@@ -23,8 +23,8 @@ services:
       - "5434:5432"
     environment:
       POSTGRES_DB: core_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
     volumes:
       - core_db_data:/var/lib/postgresql/data
     networks:
@@ -37,51 +37,43 @@ services:
       - "5435:5432"
     environment:
       POSTGRES_DB: social_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
     volumes:
       - social_db_data:/var/lib/postgresql/data
     networks:
       - totoro-network
 
-  # ======= MESSAGE BROKER (KAFKA) =======
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: totoro-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+  # ======= MESSAGE BROKER (Redpanda — Kafka-compatible) =======
+  # Note: spring-kafka client works with Redpanda via the Kafka Wire Protocol.
+  # Use SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092 (internal) or localhost:29092 (external)
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.2.19
+    container_name: totoro-redpanda
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:29092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:29092
+    ports:
+      - "9092:9092"   # internal (Docker network)
+      - "29092:29092" # external (host → localhost:29092)
     networks:
       - totoro-network
 
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: totoro-kafka
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.3.1
+    container_name: totoro-redpanda-console
     ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
+      - "8088:8080" # Redpanda Console UI
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    networks:
-      - totoro-network
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: totoro-kafka-ui
-    ports:
-      - "8089:8080"
+      KAFKA_BROKERS: redpanda:9092
     depends_on:
-      - kafka
-    environment:
-      KAFKA_CLUSTERS_0_NAME: totoro-local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      - redpanda
     networks:
       - totoro-network
 
@@ -90,7 +82,7 @@ services:
     image: jaegertracing/all-in-one:1.55
     container_name: totoro-jaeger
     ports:
-      - "16686:16686" # Web UI
+      - "16686:16686" # Jaeger Web UI
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP HTTP receiver
     environment:
@@ -112,7 +104,7 @@ services:
     image: grafana/grafana:10.0.3
     container_name: totoro-grafana
     ports:
-      - "3000:3000"
+      - "3001:3000" # 3000 may be used by frontend dev server
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin

@@ -9,6 +9,7 @@ import com.totoro.identity.dto.UserProfileResponse;
 import com.totoro.identity.entity.AuthProvider;
 import com.totoro.identity.entity.User;
 import com.totoro.identity.entity.UserProfile;
+import com.totoro.identity.event.UserEventPublisher;
 import com.totoro.identity.repository.UserProfileRepository;
 import com.totoro.identity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserEventPublisher userEventPublisher;
 
     // ===================== EXTERNAL (FE via Gateway) =====================
 
@@ -59,6 +61,20 @@ public class UserService {
         if (request.getUniversity() != null) profile.setUniversity(request.getUniversity());
 
         userProfileRepository.save(profile);
+
+        // Publish event so social-service can sync its local user_cache (CQRS read model)
+        try {
+            userEventPublisher.publishUserUpdated(
+                    user.getId(),
+                    user.getEmail(),
+                    profile.getFullName(),
+                    profile.getAvatarUrl()
+            );
+        } catch (Exception e) {
+            // Non-critical: event publish failure must not rollback profile update
+            log.warn("Failed to publish user-updated event for userId={}: {}", user.getId(), e.getMessage());
+        }
+
         return toResponse(user, profile);
     }
 

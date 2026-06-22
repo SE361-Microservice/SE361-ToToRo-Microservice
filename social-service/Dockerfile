@@ -1,9 +1,7 @@
-# Multi-stage build — core-service
-# Stage 1: Build
+# Multi-stage build — social-service
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Cache dependencies first (layer optimization)
 COPY pom.xml .
 COPY ../pom.xml ../pom.xml
 RUN mvn dependency:go-offline -q || true
@@ -11,14 +9,13 @@ RUN mvn dependency:go-offline -q || true
 COPY src ./src
 RUN mvn clean package -DskipTests -q
 
-# Stage 2: Runtime (slim JRE)
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-COPY --from=build /build/target/core-service-*.jar app.jar
+COPY --from=build /build/target/social-service-*.jar app.jar
 
-EXPOSE 8082
+EXPOSE 8083
 ENTRYPOINT ["java", "-jar", "app.jar"]

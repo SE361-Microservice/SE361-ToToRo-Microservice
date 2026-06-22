@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/identity_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       max-lifetime: 580000
@@ -34,7 +34,6 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: email, profile
-            # Identity service handles its own redirect (port 8081)
             redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:8081/login/oauth2/code/google}
 
   mail:
@@ -49,11 +48,14 @@ spring:
           starttls:
             enable: true
 
+  # Redpanda is Kafka-compatible — spring-kafka client works without any code changes
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 
 server:
   port: ${SERVER_PORT:8081}
@@ -64,7 +66,38 @@ app:
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
   frontend:
-    # Frontend URL for OAuth2 redirect after Google login
     oauth2-redirect-url: ${FRONTEND_OAUTH2_REDIRECT_URL:http://localhost:3000/oauth2/redirect}
     reset-password-url: ${FRONTEND_RESET_PASSWORD_URL:http://localhost:3000/reset-password}
     verify-email-url: ${FRONTEND_VERIFY_EMAIL_URL:http://localhost:8081/api/auth/verify}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,metrics
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20

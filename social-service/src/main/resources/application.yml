@@ -86,3 +86,11 @@ resilience4j:
       default:
         maxAttempts: 3
         waitDuration: 500ms
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
