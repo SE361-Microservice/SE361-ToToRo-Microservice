@@ -66,6 +66,7 @@ spring:
 
 server:
   port: ${PORT:${SERVER_PORT:8081}}
+  forward-headers-strategy: native  # Trust X-Forwarded-* headers from Cloud Run LB → HTTPS redirects
 
 app:
   jwt:

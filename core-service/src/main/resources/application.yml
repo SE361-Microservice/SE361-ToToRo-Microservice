@@ -1,5 +1,6 @@
 server:
   port: ${PORT:${SERVER_PORT:8082}}
+  forward-headers-strategy: native
 
 spring:
   application:
@@ -13,10 +14,14 @@ spring:
       timeout: 2000ms
 
   cache:
-    type: redis
+    type: ${SPRING_CACHE_TYPE:simple}  # 'simple' = in-memory (no Redis needed), 'redis' when Redis available
     redis:
       time-to-live: 300000 # 5 minutes
       cache-null-values: false
+
+  autoconfigure:
+    exclude:
+      - ${REDIS_AUTOCONFIG_EXCLUDE:org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration}
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/core_db}
