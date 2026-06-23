@@ -142,6 +142,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      SPRING_DATA_REDIS_SSL_ENABLED: "false"
     depends_on:
       identity-db:
         condition: service_healthy
@@ -169,6 +170,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      SPRING_DATA_REDIS_SSL_ENABLED: "false"
     depends_on:
       core-db:
         condition: service_healthy
