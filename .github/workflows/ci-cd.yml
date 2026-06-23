@@ -141,6 +141,10 @@ jobs:
           service: identity-service
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.GAR_REPO }}/identity-service:${{ github.sha }}
           region: ${{ env.CLOUD_RUN_REGION }}
+          env_vars: |
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
 
       - name: Deploy core-service to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
@@ -148,6 +152,12 @@ jobs:
           service: core-service
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.GAR_REPO }}/core-service:${{ github.sha }}
           region: ${{ env.CLOUD_RUN_REGION }}
+          env_vars: |
+            SPRING_CACHE_TYPE=redis
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            REDIS_AUTOCONFIG_EXCLUDE=none
 
       - name: Deploy social-service to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
