@@ -178,14 +178,18 @@ public class ListingSearchService {
             return false;
         if (request.getMaxPrice() != null && listing.getPriceRent() > request.getMaxPrice())
             return false;
-        if (request.getDistrict() != null && !request.getDistrict().isBlank()
-                && !listing.getDistrict().toLowerCase().contains(request.getDistrict().toLowerCase()))
-            return false;
-        if (request.getCity() != null && !request.getCity().isBlank()
-                && !listing.getCity().toLowerCase().contains(request.getCity().toLowerCase()))
-            return false;
+        if (request.getDistrict() != null && !request.getDistrict().isBlank()) {
+            String district = listing.getDistrict();
+            if (district == null || !district.toLowerCase().contains(request.getDistrict().toLowerCase()))
+                return false;
+        }
+        if (request.getCity() != null && !request.getCity().isBlank()) {
+            String city = listing.getCity();
+            if (city == null || !city.toLowerCase().contains(request.getCity().toLowerCase()))
+                return false;
+        }
         if (request.getRoomType() != null && !request.getRoomType().isBlank()
-                && !listing.getRoomType().equals(request.getRoomType()))
+                && !request.getRoomType().equals(listing.getRoomType()))
             return false;
         return true;
     }
