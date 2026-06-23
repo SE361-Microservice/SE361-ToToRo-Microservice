@@ -24,7 +24,7 @@ const trendingTags = [
 const roommateProfiles = [
   {
     id: 1,
-    image: '',
+    image: '/avatars/minh_anh.png',
     name: 'Minh Anh',
     age: 21,
     institution: 'Đại học Kinh tế TP.HCM',
@@ -33,7 +33,7 @@ const roommateProfiles = [
   },
   {
     id: 2,
-    image: '',
+    image: '/avatars/thu_ha.png',
     name: 'Thu Hà',
     age: 20,
     institution: 'Đại học Bách Khoa TP.HCM',
@@ -188,12 +188,17 @@ export default function GuestHomePage() {
           </div>
 
           {/* Profile cards */}
-          <div className="relative flex items-center justify-center h-72 md:h-80">
+          <div className="relative flex items-center justify-center h-96 w-full max-w-md mx-auto">
             {roommateProfiles.map((profile, i) => (
               <div
                 key={profile.id}
-                className="absolute"
-                style={{ left: `${i * 40}px`, zIndex: i }}
+                className="absolute transition-all duration-300 hover:scale-105 hover:z-20 cursor-pointer"
+                style={{
+                  transform: i === 0
+                    ? 'translateX(-50px) translateY(-10px) rotate(-6deg)'
+                    : 'translateX(50px) translateY(10px) rotate(6deg)',
+                  zIndex: i,
+                }}
               >
                 <ProfileCard
                   name={profile.name}
@@ -201,8 +206,8 @@ export default function GuestHomePage() {
                   institution={profile.institution}
                   lifestyleTags={profile.lifestyleTags}
                   image={profile.image}
-                  rotated={profile.rotated}
-                  className="w-48"
+                  rotated={false} // Rotated handled by transform style above
+                  className="w-48 shadow-[0_15px_35px_rgba(0,0,0,0.1)]"
                 />
               </div>
             ))}

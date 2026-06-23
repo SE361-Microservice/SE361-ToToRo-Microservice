@@ -34,4 +34,9 @@ public class AdminListingController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return ResponseEntity.ok(queryService.getAllListingsForAdmin(status, pageable));
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<java.util.Map<String, Long>> getListingStats() {
+        return ResponseEntity.ok(queryService.getListingStatsForAdmin());
+    }
 }

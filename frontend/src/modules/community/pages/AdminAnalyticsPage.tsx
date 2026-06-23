@@ -343,7 +343,6 @@ export default function AdminAnalyticsPage() {
                         const circumference = 2 * Math.PI * radius;
                         return data.roomTypeBreakdown.map((item, i) => {
                           const dashArray = (item.percent / 100) * circumference;
-                          const rotation = (offset / 100) * 360;
                           offset += item.percent;
                           return (
                             <circle
@@ -354,7 +353,6 @@ export default function AdminAnalyticsPage() {
                               strokeWidth="28"
                               strokeDasharray={`${dashArray} ${circumference - dashArray}`}
                               strokeDashoffset={-((offset - item.percent) / 100) * circumference}
-                              style={{ transform: `rotate(${rotation}deg)`, transformOrigin: '96px 96px' }}
                             />
                           );
                         });

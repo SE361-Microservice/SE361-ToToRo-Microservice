@@ -62,4 +62,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, JpaSpec
                                     @Param("tagSlugs") List<String> tagSlugs,
                                     @Param("tagCount") long tagCount,
                                     Pageable pageable);
+
+    @Query("SELECT l.status, COUNT(l) FROM Listing l GROUP BY l.status")
+    List<Object[]> countListingsByStatus();
 }

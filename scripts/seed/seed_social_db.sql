@@ -155,16 +155,16 @@ INSERT INTO roommate_matches (id, user1_id, user2_id) VALUES
 (1, 12, 14);
 
 -- 9. Seed Community Posts & Comments
-INSERT INTO community_posts (id, user_id, content, image_url, likes_count, comments_count) VALUES
-(1, 12, 'Có ai học UIT cần tìm bạn ở ghép khu vực Thủ Đức gần trọ Linh Trung không ạ?', NULL, 5, 2),
-(2, 13, 'Góc cảnh giác: Cẩn thận với các phòng trọ yêu cầu chuyển khoản cọc giữ chỗ trước khi xem phòng ở quận 10 nhé các bạn!', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2', 25, 4),
-(3, 14, 'Review phòng trọ siêu xịn sò khu vực Bình Thạnh cho ae sinh viên nè.', NULL, 12, 0);
+INSERT INTO community_posts (id, author_id, title, content, listing_id) VALUES
+(1, 12, 'Tìm bạn ở ghép khu vực Thủ Đức', 'Có ai học UIT cần tìm bạn ở ghép khu vực Thủ Đức gần trọ Linh Trung không ạ?', 1),
+(2, 13, 'Cảnh giác lừa đảo cọc phòng', 'Góc cảnh giác: Cẩn thận với các phòng trọ yêu cầu chuyển khoản cọc giữ chỗ trước khi xem phòng ở quận 10 nhé các bạn!', 2),
+(3, 14, 'Review phòng trọ Bình Thạnh', 'Review phòng trọ siêu xịn sò khu vực Bình Thạnh cho ae sinh viên nè.', 3);
 
-INSERT INTO community_comments (id, post_id, user_id, content) VALUES
-(1, 1, 14, 'Mình cũng đang tìm nè bạn ơi, ib trao đổi tí nhé!'),
-(2, 1, 16, 'Mình ké 1 slot ở ghép khu này với.'),
-(3, 2, 12, 'Đúng rồi, mình suýt bị lừa 1 lần ở đường Lý Thường Kiệt.'),
-(4, 2, 15, 'Cảm ơn bạn đã cảnh báo cho mọi người biết nha.');
+INSERT INTO community_comments (id, post_id, author_id, parent_id, content, is_deleted) VALUES
+(1, 1, 14, NULL, 'Mình cũng đang tìm nè bạn ơi, ib trao đổi tí nhé!', false),
+(2, 1, 16, NULL, 'Mình ké 1 slot ở ghép khu này với.', false),
+(3, 2, 12, NULL, 'Đúng rồi, mình suýt bị lừa 1 lần ở đường Lý Thường Kiệt.', false),
+(4, 2, 15, NULL, 'Cảm ơn bạn đã cảnh báo cho mọi người biết nha.', false);
 
 INSERT INTO community_likes (post_id, user_id) VALUES
 (1, 13), (1, 14), (1, 15), (1, 16), (1, 20),

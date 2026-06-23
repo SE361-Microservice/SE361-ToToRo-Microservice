@@ -62,6 +62,17 @@ public class ListingQueryService {
         return toPageResponse(page);
     }
 
+    public java.util.Map<String, Long> getListingStatsForAdmin() {
+        List<Object[]> results = listingRepository.countListingsByStatus();
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        for (Object[] result : results) {
+            ListingStatus status = (ListingStatus) result[0];
+            Long count = ((Number) result[1]).longValue();
+            stats.put(status.name(), count);
+        }
+        return stats;
+    }
+
     // ==================== MAPPERS ====================
 
     public ListingSummaryResponse toSummaryResponse(Listing listing) {
