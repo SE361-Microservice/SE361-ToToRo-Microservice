@@ -84,6 +84,15 @@ public class JwtTokenProvider {
         return false;
     }
 
+    public long getExpiration(String token) {
+        try {
+            Date expiration = getClaims(token).getExpiration();
+            return Math.max(0, expiration.getTime() - System.currentTimeMillis());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())

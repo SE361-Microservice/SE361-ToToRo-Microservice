@@ -44,6 +44,16 @@ services:
     networks:
       - totoro-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: totoro-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - totoro-network
+
   # ======= MESSAGE BROKER (Redpanda — Kafka-compatible) =======
   # Note: spring-kafka client works with Redpanda via the Kafka Wire Protocol.
   # Use SPRING_KAFKA_BOOTSTRAP_SERVERS=redpanda:9092 (internal) or localhost:29092 (external)
@@ -119,6 +129,7 @@ volumes:
   core_db_data:
   social_db_data:
   grafana_data:
+  redis_data:
 
 networks:
   totoro-network:

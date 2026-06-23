@@ -34,6 +34,7 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final EmailService emailService;
     private final UserEventPublisher userEventPublisher;
+    private final TokenBlacklistService tokenBlacklistService;
 
 
     @Transactional
@@ -177,5 +178,13 @@ public class AuthService {
             case "ADMIN" -> throw new IllegalArgumentException("Không thể tự đăng ký với quyền ADMIN");
             default -> "USER";
         };
+    }
+
+    public void logout(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            long expiration = tokenProvider.getExpiration(token);
+            tokenBlacklistService.blacklist(token, expiration);
+        }
     }
 }

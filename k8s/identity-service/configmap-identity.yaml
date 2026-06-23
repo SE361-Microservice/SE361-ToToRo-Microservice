@@ -14,3 +14,6 @@ data:
   FRONTEND_OAUTH2_REDIRECT_URL: "http://localhost:3000/oauth2/redirect"
   FRONTEND_RESET_PASSWORD_URL: "http://localhost:3000/reset-password"
   FRONTEND_VERIFY_EMAIL_URL: "http://identity-service:8081/api/auth/verify"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+

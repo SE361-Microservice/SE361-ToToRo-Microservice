@@ -6,6 +6,7 @@ import com.totoro.listing.entity.ListingStatus;
 import com.totoro.listing.repository.ListingRepository;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,11 @@ public class ListingSearchService {
      * If lat/lng/radiusKm are provided, uses native Haversine query.
      * Otherwise, uses JPA Specification for dynamic filtering.
      */
+    @Cacheable(
+            value = "listing-search",
+            key = "#request.city + ':' + #request.district + ':' + #request.minPrice + ':' + #request.maxPrice + ':' + #request.roomType + ':' + #request.page + ':' + #request.size",
+            condition = "#request.latitude == null"
+    )
     public PageResponse<ListingSummaryResponse> search(ListingSearchRequest request) {
         int page = request.getPage() != null ? request.getPage() : 0;
         int size = request.getSize() != null ? request.getSize() : 20;

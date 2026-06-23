@@ -10,3 +10,6 @@ data:
   IDENTITY_SERVICE_URL: "http://identity-service:8081"
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "redpanda:9092"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318/v1/traces"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+

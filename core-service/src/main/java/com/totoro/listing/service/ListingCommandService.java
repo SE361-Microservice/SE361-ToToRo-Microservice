@@ -14,6 +14,7 @@ import com.totoro.outbox.repository.OutboxEventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,7 @@ public class ListingCommandService {
     // ==================== CREATE ====================
 
     @Transactional
+    @CacheEvict(value = "listing-search", allEntries = true)
     public ListingDetailResponse createListing(Long userId, CreateListingRequest request) {
         UserProfileDto user = userServiceClient.getUserProfile(userId);
 
@@ -104,6 +106,7 @@ public class ListingCommandService {
     // ==================== UPDATE ====================
 
     @Transactional
+    @CacheEvict(value = "listing-search", allEntries = true)
     public ListingDetailResponse updateListing(Long userId, Long id, UpdateListingRequest request) {
         UserProfileDto user = userServiceClient.getUserProfile(userId);
         Listing listing = findById(id);
@@ -169,6 +172,7 @@ public class ListingCommandService {
     // ==================== DELETE ====================
 
     @Transactional
+    @CacheEvict(value = "listing-search", allEntries = true)
     public void deleteListing(Long userId, Long id) {
         UserProfileDto user = userServiceClient.getUserProfile(userId);
         Listing listing = findById(id);
@@ -185,6 +189,7 @@ public class ListingCommandService {
     // ==================== ADMIN COMMANDS ====================
 
     @Transactional
+    @CacheEvict(value = "listing-search", allEntries = true)
     public ListingDetailResponse activateListing(Long id) {
         Listing listing = findById(id);
         listing.setStatus(ListingStatus.ACTIVE);
@@ -199,6 +204,7 @@ public class ListingCommandService {
     }
 
     @Transactional
+    @CacheEvict(value = "listing-search", allEntries = true)
     public ListingDetailResponse rejectListing(Long id) {
         Listing listing = findById(id);
         listing.setStatus(ListingStatus.REJECTED);

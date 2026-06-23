@@ -64,6 +64,22 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: totoro-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - totoro-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # =========================================================
   # 2. MESSAGE BROKER (Redpanda — Kafka-compatible)
   # spring-kafka client works with Redpanda via Kafka Wire Protocol
@@ -124,10 +140,14 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       identity-db:
         condition: service_healthy
       redpanda:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - totoro-network
@@ -147,10 +167,14 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
       IDENTITY_SERVICE_URL: http://identity-service:8081
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       core-db:
         condition: service_healthy
       redpanda:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - totoro-network
@@ -259,3 +283,4 @@ volumes:
   core_db_data:
   social_db_data:
   grafana_data:
+  redis_data:
