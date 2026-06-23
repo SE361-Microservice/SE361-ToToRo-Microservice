@@ -95,7 +95,7 @@ export default function useNotifications() {
     }
 
     const stompClient = new Client({
-      webSocketFactory: () => new SockJS(`http://localhost:8080/ws?token=${token}`),
+      webSocketFactory: () => new SockJS(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/ws?token=${token}`),
       connectHeaders: { Authorization: `Bearer ${token}` },
       debug: () => {},
       reconnectDelay: 5000,

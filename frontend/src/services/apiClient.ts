@@ -2,8 +2,10 @@ import axios from 'axios';
 import type { AuthResponse, RefreshTokenRequest } from '../types/auth';
 
 // ── Axios instance ──────────────────────────────────────────────────
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15_000,
 });
@@ -85,7 +87,7 @@ apiClient.interceptors.response.use(
 
       try {
         const { data } = await axios.post<AuthResponse>(
-          'http://localhost:8080/api/auth/refresh-token',
+          `${API_URL}/auth/refresh-token`,
           { refreshToken } as RefreshTokenRequest,
         );
         tokenStorage.setTokens(data.accessToken, data.refreshToken);
