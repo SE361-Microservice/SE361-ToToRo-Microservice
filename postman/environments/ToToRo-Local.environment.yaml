@@ -1,0 +1,8 @@
+name: ToToRo-Local
+values:
+  - key: baseUrl
+    value: ''
+  - key: token
+    value: ''
+  - key: token1
+    value: ''

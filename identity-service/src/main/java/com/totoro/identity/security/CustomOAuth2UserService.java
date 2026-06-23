@@ -5,6 +5,7 @@ import com.totoro.identity.entity.User;
 import com.totoro.identity.entity.UserProfile;
 import com.totoro.identity.repository.UserProfileRepository;
 import com.totoro.identity.repository.UserRepository;
+import com.totoro.identity.event.UserEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -23,6 +24,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
+    private final UserEventPublisher userEventPublisher;
+
 
     @Override
     @Transactional
@@ -81,6 +84,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .build();
         userProfileRepository.save(profile);
 
+        // Bắn event user-updated cho social-service cache
+        try {
+            userEventPublisher.publishUserUpdated(
+                    user.getId(),
+                    user.getEmail(),
+                    profile.getFullName(),
+                    profile.getAvatarUrl()
+            );
+        } catch (Exception e) {
+            // Không rollback flow auth nếu kafka lỗi
+        }
+
         return user;
     }
 
@@ -88,9 +103,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // Update avatar from Google if profile exists
         userProfileRepository.findByUserId(existingUser.getId()).ifPresent(profile -> {
             String latestAvatar = oAuth2User.getAttribute("picture");
+            boolean changed = false;
             if (latestAvatar != null && !latestAvatar.equals(profile.getAvatarUrl())) {
                 profile.setAvatarUrl(latestAvatar);
                 userProfileRepository.save(profile);
+                changed = true;
+            }
+            // Luôn đảm bảo social-service được đồng bộ
+            if (changed) {
+                try {
+                    userEventPublisher.publishUserUpdated(
+                            existingUser.getId(),
+                            existingUser.getEmail(),
+                            profile.getFullName(),
+                            profile.getAvatarUrl()
+                    );
+                } catch (Exception e) {
+                }
             }
         });
     }

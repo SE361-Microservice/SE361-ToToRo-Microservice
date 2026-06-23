@@ -10,19 +10,19 @@ scrape_configs:
   - job_name: 'gateway-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['gateway-service:8080']
+      - targets: ['host.docker.internal:8080']
 
   - job_name: 'identity-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['identity-service:8081']
+      - targets: ['host.docker.internal:8081']
 
   - job_name: 'core-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['core-service:8082']
+      - targets: ['host.docker.internal:8082']
 
   - job_name: 'social-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['social-service:8083']
+      - targets: ['host.docker.internal:8083']

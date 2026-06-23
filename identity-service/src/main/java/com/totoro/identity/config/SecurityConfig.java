@@ -78,6 +78,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 // Public auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Spring Boot error endpoint
+                .requestMatchers("/error").permitAll()
+                // Actuator endpoints (for Prometheus monitoring)
+                .requestMatchers("/actuator/**").permitAll()
                 // OAuth2 flow endpoints
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 // Internal endpoints: only accessible within Docker/K8s network

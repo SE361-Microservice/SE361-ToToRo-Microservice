@@ -13,7 +13,11 @@ public enum NotificationType {
     /** A review received a reply */
     REVIEW_REPLY,
     /** A listing was rejected by admin */
-    LISTING_REJECTED
+    LISTING_REJECTED,
+    /** System-generated alert (e.g., listing pending approval) */
+    SYSTEM_ALERT,
+    /** AI-generated proactive recommendation notification */
+    AI_RECOMMENDATION
 }
 
 

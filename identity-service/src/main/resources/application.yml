@@ -58,7 +58,7 @@ spring:
         spring.json.add.type.headers: false
 
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${PORT:${SERVER_PORT:8081}}
 
 app:
   jwt:

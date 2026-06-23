@@ -34,14 +34,20 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     private final List<String> publicPaths = List.of(
             "/api/auth/login",
             "/api/auth/register",
-            "/api/auth/verify-email",
+            "/api/auth/verify",           // ← was /api/auth/verify-email (wrong)
+            "/api/auth/forgot-password",  // ← missing
             "/api/auth/reset-password",
+            "/api/auth/refresh-token",    // ← was /api/auth/refresh (wrong)
             "/api/auth/google/**",
-            "/api/auth/refresh",
+            "/api/listings",              // ← public GET for listings
+            "/api/listings/**",           // ← public GET for listing detail
+            "/oauth2/**",
+            "/login/oauth2/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/webjars/**"
+            "/webjars/**",
+            "/actuator/**"
     );
 
     public JwtAuthenticationFilter() {

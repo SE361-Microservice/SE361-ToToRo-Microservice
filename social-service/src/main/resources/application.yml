@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: ${PORT:${SERVER_PORT:8083}}
 
 spring:
   application:
@@ -39,6 +39,9 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        security.protocol: ${SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL:PLAINTEXT}
+        sasl.mechanism: ${SPRING_KAFKA_PROPERTIES_SASL_MECHANISM:}
+        sasl.jaas.config: ${SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG:}
 
 app:
   internal-api-key: ${INTERNAL_API_KEY:}

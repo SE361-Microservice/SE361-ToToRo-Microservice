@@ -1,0 +1,14 @@
+-- V4__update_listing_images_and_facilities.sql
+ALTER TABLE listing_images
+    DROP COLUMN IF EXISTS image_url,
+    DROP COLUMN IF EXISTS order_index,
+    ADD COLUMN url VARCHAR(500) NOT NULL DEFAULT '',
+    ADD COLUMN is_cover BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN sort_order SMALLINT NOT NULL DEFAULT 0,
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE listing_facilities
+    DROP COLUMN IF EXISTS description,
+    ADD COLUMN facility_type VARCHAR(50) NOT NULL DEFAULT '',
+    ADD COLUMN is_included BOOLEAN NOT NULL DEFAULT TRUE,
+    ADD COLUMN note VARCHAR(255);

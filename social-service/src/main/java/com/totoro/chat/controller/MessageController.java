@@ -1,0 +1,52 @@
+package com.totoro.chat.controller;
+
+import com.totoro.chat.dto.MessageRequest;
+import com.totoro.chat.dto.MessageResponse;
+import com.totoro.chat.service.MessageService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/conversations/{conversationId}/messages")
+@RequiredArgsConstructor
+public class MessageController {
+
+    private final MessageService messageService;
+
+    @PostMapping
+    public ResponseEntity<MessageResponse> sendMessage(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long conversationId,
+            @Valid @RequestBody MessageRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(messageService.sendMessage(userId, conversationId, request));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MessageResponse>> getMessages(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long conversationId) {
+        return ResponseEntity.ok(messageService.getMessages(userId, conversationId));
+    }
+
+    @PutMapping("/{messageId}")
+    public ResponseEntity<MessageResponse> updateMessage(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long messageId,
+            @Valid @RequestBody MessageRequest request) {
+        return ResponseEntity.ok(messageService.updateMessage(userId, messageId, request));
+    }
+
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<String> deleteMessage(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long messageId) {
+        messageService.deleteMessage(userId, messageId);
+        return ResponseEntity.ok("Xóa tin nhắn thành công");
+    }
+}

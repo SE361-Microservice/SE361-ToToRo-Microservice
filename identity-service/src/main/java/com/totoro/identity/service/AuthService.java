@@ -8,6 +8,8 @@ import com.totoro.identity.repository.UserProfileRepository;
 import com.totoro.identity.repository.UserRepository;
 import com.totoro.identity.security.CustomUserDetails;
 import com.totoro.identity.security.JwtTokenProvider;
+import com.totoro.identity.event.UserEventPublisher;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final EmailService emailService;
+    private final UserEventPublisher userEventPublisher;
+
 
     @Transactional
     public void register(RegisterRequest request) {
@@ -101,7 +105,21 @@ public class AuthService {
         user.setResetToken(null);
         userRepository.save(user);
         log.info("Email verified for user: {}", user.getEmail());
+
+        // Bắn event user-updated để social-service cache lại user này
+        try {
+            UserProfile profile = userProfileRepository.findByUserId(user.getId()).orElse(null);
+            userEventPublisher.publishUserUpdated(
+                    user.getId(),
+                    user.getEmail(),
+                    profile != null ? profile.getFullName() : "",
+                    profile != null ? profile.getAvatarUrl() : null
+            );
+        } catch (Exception e) {
+            log.warn("Failed to publish user-updated event during email verification for userId={}: {}", user.getId(), e.getMessage());
+        }
     }
+
 
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {

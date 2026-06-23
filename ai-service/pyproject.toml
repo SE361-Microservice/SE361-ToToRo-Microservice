@@ -1,0 +1,9 @@
+[project]
+name = "totoro-ai-service"
+version = "1.0.0"
+description = "Totoro AI Service — Agentic AI for room search, roommate matching, and smart notifications"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
