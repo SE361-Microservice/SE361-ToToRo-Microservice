@@ -1,6 +1,9 @@
 package com.totoro.listing.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,22 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
-import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/upload")
+@RequiredArgsConstructor
 public class UploadController {
 
-    /** Use /tmp on Cloud Run (writable), or local dir for development */
-    private static final String UPLOAD_DIR = System.getProperty("java.io.tmpdir") + "/uploads/general/";
-
-    @Value("${app.base-url:}")
-    private String baseUrl;
+    private final Cloudinary cloudinary;
 
     @PostMapping("/image")
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
@@ -38,29 +34,18 @@ public class UploadController {
         }
 
         try {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            @SuppressWarnings("unchecked")
+            Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", "totoro",
+                    "resource_type", "image"
+            ));
 
-            String originalFilename = file.getOriginalFilename();
-            String extension = ".jpg";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
+            String secureUrl = (String) result.get("secure_url");
+            log.info("Image uploaded to Cloudinary: {}", secureUrl);
 
-            String newFilename = UUID.randomUUID() + extension;
-            Files.copy(file.getInputStream(), uploadPath.resolve(newFilename));
-
-            // Build full URL for serving the image
-            String imageUrl;
-            if (baseUrl != null && !baseUrl.isBlank()) {
-                imageUrl = baseUrl + "/uploads/general/" + newFilename;
-            } else {
-                imageUrl = "/uploads/general/" + newFilename;
-            }
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("url", imageUrl));
-        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("url", secureUrl));
+        } catch (Exception e) {
+            log.error("Failed to upload image to Cloudinary", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Không thể tải ảnh lên: " + e.getMessage()));
         }

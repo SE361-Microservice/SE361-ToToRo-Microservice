@@ -219,6 +219,11 @@ public class ListingCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Listing not found: " + id));
     }
 
+    @Transactional
+    public void incrementViewCount(Long id) {
+        listingRepository.incrementViewCount(id);
+    }
+
     void checkOwnership(UserProfileDto user, Listing listing) {
         if (!listing.getLandlordId().equals(user.getId())) {
             throw new IllegalArgumentException("You don't have permission to modify this listing");
@@ -256,6 +261,7 @@ public class ListingCommandService {
                 .priceManagement(listing.getPriceManagement())
                 .priceParking(listing.getPriceParking())
                 .status(listing.getStatus().name())
+                .viewCount(listing.getViewCount())
                 .isSharedOwner(listing.getIsSharedOwner())
                 .maxOccupants(listing.getMaxOccupants())
                 .availableFrom(listing.getAvailableFrom())

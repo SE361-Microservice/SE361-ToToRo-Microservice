@@ -81,6 +81,10 @@ public class Listing {
     @Column(name = "available_from")
     private LocalDate availableFrom;
 
+    @Builder.Default
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;
+
     @Column(name = "landlord_id", nullable = false)
     private Long landlordId;
 

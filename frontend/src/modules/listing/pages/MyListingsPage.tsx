@@ -158,11 +158,11 @@ export default function MyListingsPage() {
                 </p>
               </div>
 
-              {/* Views (placeholder, no real analytics yet) */}
+              {/* Views */}
               <div className="md:col-span-1 hidden md:block">
                 <p className="text-sm font-bold flex items-center">
                   <span className="material-symbols-outlined text-sm mr-1 opacity-40">visibility</span>
-                  —
+                  {listing.viewCount?.toLocaleString() ?? 0}
                 </p>
               </div>
 

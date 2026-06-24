@@ -409,6 +409,7 @@ public class ListingService {
                 .priceManagement(listing.getPriceManagement())
                 .priceParking(listing.getPriceParking())
                 .status(listing.getStatus().name())
+                .viewCount(listing.getViewCount())
                 .isSharedOwner(listing.getIsSharedOwner())
                 .maxOccupants(listing.getMaxOccupants())
                 .availableFrom(listing.getAvailableFrom())
@@ -455,6 +456,7 @@ public class ListingService {
                 .isSharedOwner(listing.getIsSharedOwner())
                 .maxOccupants(listing.getMaxOccupants())
                 .status(listing.getStatus().name())
+                .viewCount(listing.getViewCount())
                 .createdAt(listing.getCreatedAt())
                 .build();
     }

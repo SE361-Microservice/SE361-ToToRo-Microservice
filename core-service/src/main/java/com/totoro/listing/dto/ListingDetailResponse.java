@@ -40,6 +40,7 @@ public class ListingDetailResponse {
     private Long priceParking;
 
     private String status;
+    private Long viewCount;
     private Boolean isSharedOwner;
     private Short maxOccupants;
     private LocalDate availableFrom;

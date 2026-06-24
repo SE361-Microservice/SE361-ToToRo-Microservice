@@ -103,6 +103,7 @@ public class ListingQueryService {
                 .isSharedOwner(listing.getIsSharedOwner())
                 .maxOccupants(listing.getMaxOccupants())
                 .status(listing.getStatus().name())
+                .viewCount(listing.getViewCount())
                 .reviewCount(0) // Ratings live in social-service; enrich via social API if needed
                 .createdAt(listing.getCreatedAt())
                 .build();
