@@ -110,6 +110,7 @@ export default function ListingCard({ listing, onHover, viewMode = 'card', isHid
         
         <p className={clsx("text-on-surface-variant text-sm flex items-center gap-1 truncate", viewMode !== 'row' && "mb-4")}>
           <span className="material-symbols-outlined text-[16px] flex-shrink-0">location_on</span>
+          {listing.address}{listing.district ? `, ${listing.district}` : ''}{listing.city ? `, ${listing.city}` : ''}
         </p>
         
         <div className={clsx("flex flex-wrap gap-2 overflow-hidden", viewMode === 'row' ? 'hidden' : 'mb-4')}>

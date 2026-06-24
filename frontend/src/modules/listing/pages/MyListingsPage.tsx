@@ -132,6 +132,7 @@ export default function MyListingsPage() {
                   </h3>
                   <p className="text-sm text-on-surface-variant flex items-center mt-1 truncate">
                     <span className="material-symbols-outlined text-sm mr-1">location_on</span>
+                    {listing.address}{listing.district ? `, ${listing.district}` : ''}{listing.city ? `, ${listing.city}` : ''}
                   </p>
                 </div>
               </div>

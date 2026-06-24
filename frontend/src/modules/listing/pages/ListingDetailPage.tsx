@@ -233,6 +233,7 @@ export default function ListingDetailPage() {
             </h1>
             <p className="text-on-surface-variant flex items-center gap-1.5 text-lg">
               <span className="material-symbols-outlined text-primary">location_on</span>
+              {listing.address}{listing.district ? `, ${listing.district}` : ''}{listing.city ? `, ${listing.city}` : ''}
             </p>
           </div>
           

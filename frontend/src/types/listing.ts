@@ -235,6 +235,7 @@ export interface Listing {
   title: string;
   description: string;
   address: string;
+  district?: string;
   city: string;
   latitude: number;
   longitude: number;
