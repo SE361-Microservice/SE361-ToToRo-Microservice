@@ -30,11 +30,19 @@ export default function AiChatWidget() {
   const { pathname } = useLocation();
   // Hide widget entirely on chat/messages pages and auth pages
   const isHiddenPage = pathname.includes('/messages') || pathname.includes('/login') || pathname.includes('/register') || pathname.includes('/forgot-password');
-  
+
+  const user = useAuthStore((s: { user: UserProfileDto | null }) => s.user);
+
+  // ── Per-user storage keys: chat history and thread are isolated per account ──
+  const storageKey = `totoro_ai_chat_messages_${user?.id ?? 'guest'}`;
+  const threadKey = `totoro_ai_thread_id_${user?.id ?? 'guest'}`;
+
   const [isOpen, setIsOpen] = useState(false);
+
+  // Persist messages per user
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
-      const saved = localStorage.getItem('totoro_ai_chat_messages');
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
         return JSON.parse(saved).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }));
       }
@@ -49,27 +57,55 @@ export default function AiChatWidget() {
       },
     ];
   });
-  const [input, setInput] = useState('');
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
-  const user = useAuthStore((s: { user: UserProfileDto | null }) => s.user);
-  
-  // Persist threadId
+  // Persist threadId per user (issue #2: separate thread per account)
   const [tid] = useState(() => {
-    let t = localStorage.getItem('totoro_ai_thread_id');
+    let t = localStorage.getItem(threadKey);
     if (!t) {
       t = `thread_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      localStorage.setItem('totoro_ai_thread_id', t);
+      localStorage.setItem(threadKey, t);
     }
     return t;
   });
   const threadId = useRef<string>(tid);
 
-  // Persist messages
+  const [input, setInput] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+
+  // Sync threadId when user changes (e.g. switching accounts without full reload)
   useEffect(() => {
-    localStorage.setItem('totoro_ai_chat_messages', JSON.stringify(messages));
-  }, [messages]);
+    let t = localStorage.getItem(threadKey);
+    if (!t) {
+      t = `thread_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(threadKey, t);
+    }
+    threadId.current = t;
+  }, [threadKey]);
+
+  // Reload messages from localStorage when user changes account (without page reload)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        setMessages(JSON.parse(saved).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })));
+        return;
+      }
+    } catch {}
+    // New user: show welcome message
+    setMessages([{
+      id: 'welcome',
+      role: 'assistant',
+      content: 'Xin chào! 🌿 Mình là **Totoro AI**, trợ lý tìm phòng trọ cho sinh viên.\n\nBạn cần mình giúp gì nào?',
+      timestamp: new Date(),
+      quickReplies: ['🏠 Tìm phòng trọ', '👥 Tìm bạn ở ghép', '📊 So sánh phòng'],
+    }]);
+  }, [storageKey]);
+
+  // Persist messages per user (issue #2: scoped to user)
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(messages));
+  }, [messages, storageKey]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -107,18 +143,16 @@ export default function AiChatWidget() {
     setInput('');
     setIsStreaming(true);
 
-    // Add placeholder for assistant response
+    // Issue #3: Do NOT add an empty placeholder upfront.
+    // Instead accumulate tokens and only add the message when first token arrives.
     const assistantId = `ai_${Date.now()}`;
-    setMessages((prev) => [
-      ...prev,
-      { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
-    ]);
+    let assistantAdded = false;
 
     let accumulated = '';
 
     await streamChat(
       {
-        message: trimmed || (confirmAction ? 'Có' : 'Không'),
+        message: trimmed,
         thread_id: threadId.current,
         user_id: user?.email || 'anonymous',
         confirm_action: confirmAction ?? null,
@@ -126,9 +160,17 @@ export default function AiChatWidget() {
       // onToken
       (token: string) => {
         accumulated += token;
-        setMessages((prev) =>
-          prev.map((m) => (m.id === assistantId ? { ...m, content: accumulated } : m)),
-        );
+        setMessages((prev) => {
+          // Add the assistant message on first token (fixes double 🌿 icon)
+          if (!assistantAdded) {
+            assistantAdded = true;
+            return [
+              ...prev,
+              { id: assistantId, role: 'assistant', content: accumulated, timestamp: new Date() },
+            ];
+          }
+          return prev.map((m) => (m.id === assistantId ? { ...m, content: accumulated } : m));
+        });
       },
       // onDone
       (event: AiStreamEvent) => {
@@ -169,7 +211,15 @@ export default function AiChatWidget() {
   /* ── Confirm / Cancel action ────────────────────────────── */
   const handleConfirm = (confirmed: boolean) => {
     setPendingAction(null);
-    sendMessage(confirmed ? 'Có, tôi xác nhận.' : 'Không, hủy bỏ.', confirmed);
+    // Show a user-visible message in the chat history
+    const displayText = confirmed ? '✅ Có, thực hiện' : '❌ Không, hủy';
+    setMessages((prev) => [
+      ...prev,
+      { id: `confirm_${Date.now()}`, role: 'user' as const, content: displayText, timestamp: new Date() },
+    ]);
+    // Send ONLY the confirm_action flag — empty message prevents the agent from
+    // treating this as a new search query and asking for confirmation again.
+    sendMessage('', confirmed);
   };
 
   /* ── Submit ─────────────────────────────────────────────── */

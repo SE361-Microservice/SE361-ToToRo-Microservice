@@ -11,7 +11,8 @@ export const matchingService = {
   // ── Profiles ────────────────────────────────────────────────────────
 
   upsertMyProfile: async (request: RoommateProfileRequest): Promise<RoommateProfileResponse> => {
-    const response = await apiClient.put<RoommateProfileResponse>('/roommate-profiles/me', request);
+    // Backend uses @PostMapping("/me") — POST is correct for upsert
+    const response = await apiClient.post<RoommateProfileResponse>('/roommate-profiles/me', request);
     return response.data;
   },
 
