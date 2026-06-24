@@ -92,6 +92,7 @@ export interface CreateListingRequest {
   title: string;
   description?: string;
   address: string;
+  district: string;
   city: string;
   latitude?: number;
   longitude?: number;
@@ -143,6 +144,7 @@ export interface ListingSummaryResponse {
   id: number;
   title: string;
   address: string;
+  district?: string;
   city: string;
   ward?: string;
   roomType: string;
@@ -172,6 +174,7 @@ export interface ListingDetailResponse {
   title: string;
   description: string;
   address: string;
+  district?: string;
   city: string;
   latitude: number;
   longitude: number;

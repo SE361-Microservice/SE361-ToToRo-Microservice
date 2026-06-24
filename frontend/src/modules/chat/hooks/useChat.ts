@@ -72,7 +72,27 @@ export function useChat() {
         presenceService.getOnlineUsers()
       ]);
       const onlineSet = new Set(onlineIds);
-      setConversations(dtos.map(d => mapConversation(d, currentUserId, onlineSet)));
+      const mapped = dtos.map(d => mapConversation(d, currentUserId, onlineSet));
+
+      // Fetch messages for each conversation in parallel to populate last message preview on mount
+      const initialMessagesMap: Record<number, Message[]> = {};
+      await Promise.all(
+        mapped.map(async (conv) => {
+          try {
+            const msgs = await chatService.getMessages(conv.id);
+            const mappedMsgs = msgs.map(mapMessage);
+            initialMessagesMap[conv.id] = mappedMsgs;
+            if (mappedMsgs.length > 0) {
+              conv.lastMessage = mappedMsgs[mappedMsgs.length - 1];
+            }
+          } catch (err) {
+            console.error(`Failed to fetch initial messages for conversation ${conv.id}:`, err);
+          }
+        })
+      );
+
+      setMessagesMap(prev => ({ ...prev, ...initialMessagesMap }));
+      setConversations(mapped);
     } catch (err) {
       console.error('Failed to fetch conversations:', err);
     } finally {

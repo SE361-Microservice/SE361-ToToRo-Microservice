@@ -41,8 +41,23 @@ public class UserCacheService {
                 return Optional.of(saved);
             }
         } catch (Exception e) {
-            log.error("Failed to fetch user {} from identity-service via FeignClient", id, e);
+            log.error("Failed to fetch user {} from identity-service via FeignClient. Falling back to placeholder user.", id, e);
         }
+
+        try {
+            User placeholderUser = User.builder()
+                    .id(id)
+                    .email("placeholder-" + id + "@totoro.com")
+                    .fullName("Người dùng " + id)
+                    .avatarUrl("https://api.dicebear.com/7.x/avataaars/svg?seed=" + id)
+                    .build();
+            User saved = userRepository.saveAndFlush(placeholderUser);
+            log.info("Successfully created placeholder user {} in local user_cache", id);
+            return Optional.of(saved);
+        } catch (Exception dbEx) {
+            log.error("Failed to create placeholder user in local user_cache for id: {}", id, dbEx);
+        }
+
         return Optional.empty();
     }
 }

@@ -31,6 +31,7 @@ interface FormData {
   type: ListingType;
   area: number | '';
   address: string;
+  district: string;
   description: string;
   latitude: number;
   longitude: number;
@@ -57,8 +58,13 @@ interface ValidationErrors {
 
 const HCM_CENTER = { lat: 10.762622, lng: 106.660172 };
 
+const DISTRICTS = [
+  'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 7', 'Quận 8', 'Quận 10', 'Quận 12',
+  'Bình Thạnh', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Thủ Đức'
+] as const;
+
 const INITIAL: FormData = {
-  title: '', type: 'room', area: '', address: '', description: '',
+  title: '', type: 'room', area: '', address: '', district: '', description: '',
   latitude: HCM_CENTER.lat, longitude: HCM_CENTER.lng,
   rentPrice: '', electricPrice: '', waterPrice: '', deposit: '', internetPrice: '', otherFees: '',
   amenities: new Set(), tags: new Set(), maxOccupants: '', floorNumber: '', totalFloors: '',
@@ -122,6 +128,7 @@ export default function EditListingPage() {
           description: data.description,
           type: data.roomType as any,
           address: data.address,
+          district: data.district || '',
           latitude: data.latitude,
           longitude: data.longitude,
           area: data.areaM2 ? data.areaM2 : '',
@@ -225,14 +232,58 @@ export default function EditListingPage() {
 
   const handleDragEnd = () => setDragIdx(null);
 
+  // ── Reverse Geocode handler ──────────────────────────────────
+  const reverseGeocode = useCallback(async (lat: number, lng: number) => {
+    if (!mapboxToken) return;
+    try {
+      const resp = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}&limit=1`);
+      const data = await resp.json();
+      const feature = data?.features?.[0];
+      if (feature) {
+        const placeName = feature.place_name || '';
+        
+        let detectedDistrict = '';
+        const context = feature.context || [];
+        for (const item of context) {
+          if (item.id.startsWith('district') || item.id.startsWith('locality') || item.id.startsWith('place')) {
+            const text = item.text;
+            const matched = DISTRICTS.find(d => text.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(text.toLowerCase()));
+            if (matched) {
+              detectedDistrict = matched;
+              break;
+            }
+          }
+        }
+        
+        if (!detectedDistrict) {
+          const matched = DISTRICTS.find(d => placeName.toLowerCase().includes(d.toLowerCase()));
+          if (matched) {
+            detectedDistrict = matched;
+          }
+        }
+
+        setForm((prev) => {
+          const next = { ...prev, address: placeName };
+          if (detectedDistrict) {
+            next.district = detectedDistrict;
+          }
+          return next;
+        });
+      }
+    } catch { /* silent fail */ }
+  }, [mapboxToken]);
+
   // ── Map drag handler ──────────────────────────────────────────
   const handleMarkerDrag = useCallback((e: MarkerDragEvent) => {
+    const lat = e.lngLat.lat;
+    const lng = e.lngLat.lng;
     setForm((prev) => ({
       ...prev,
-      latitude: e.lngLat.lat,
-      longitude: e.lngLat.lng,
+      latitude: lat,
+      longitude: lng,
     }));
-  }, []);
+    reverseGeocode(lat, lng);
+  }, [reverseGeocode]);
 
   // ── Geocode address → move map ────────────────────────────────
   const geocodeAddress = useCallback(async (addr: string) => {
@@ -244,7 +295,35 @@ export default function EditListingPage() {
       const feature = data?.features?.[0];
       if (feature) {
         const [lng, lat] = feature.center;
-        setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+        
+        let detectedDistrict = '';
+        const context = feature.context || [];
+        for (const item of context) {
+          if (item.id.startsWith('district') || item.id.startsWith('locality') || item.id.startsWith('place')) {
+            const text = item.text;
+            const matched = DISTRICTS.find(d => text.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(text.toLowerCase()));
+            if (matched) {
+              detectedDistrict = matched;
+              break;
+            }
+          }
+        }
+        
+        if (!detectedDistrict) {
+          const name = feature.place_name || '';
+          const matched = DISTRICTS.find(d => name.toLowerCase().includes(d.toLowerCase()));
+          if (matched) {
+            detectedDistrict = matched;
+          }
+        }
+
+        setForm((prev) => {
+          const next = { ...prev, latitude: lat, longitude: lng };
+          if (detectedDistrict) {
+            next.district = detectedDistrict;
+          }
+          return next;
+        });
         mapRef.current?.flyTo({ center: [lng, lat], zoom: 16, duration: 1200 });
       }
     } catch { /* silent fail */ }
@@ -257,6 +336,7 @@ export default function EditListingPage() {
     if (step === 0) {
       if (!form.title.trim()) errs.title = 'Vui lòng nhập tiêu đề tin đăng';
       if (!form.address.trim()) errs.address = 'Vui lòng nhập địa chỉ';
+      if (!form.district) errs.district = 'Vui lòng chọn Quận/Huyện';
       if (form.area !== '' && Number(form.area) <= 0) errs.area = 'Diện tích phải lớn hơn 0';
     }
 
@@ -278,7 +358,7 @@ export default function EditListingPage() {
 
   // ── Navigation ──────────────────────────────────────────────
   const canProceed = () => {
-    if (step === 0) return form.title.trim() !== '' && form.address.trim() !== '';
+    if (step === 0) return form.title.trim() !== '' && form.address.trim() !== '' && form.district !== '';
     if (step === 1) return form.rentPrice !== '' && Number(form.rentPrice) > 0;
     return true;
   };
@@ -298,6 +378,7 @@ export default function EditListingPage() {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         address: form.address.trim(),
+        district: form.district,
         city: 'Hồ Chí Minh',
         latitude: form.latitude,
         longitude: form.longitude,
@@ -487,6 +568,18 @@ export default function EditListingPage() {
                     <input type="number" min="0" className={errors.area ? inputErrorClass : inputClass} placeholder="25" value={form.area} onChange={(e) => update('area', parsePositiveNumber(e.target.value))} />
                     {fieldError('area')}
                   </div>
+                </div>
+
+                {/* District */}
+                <div>
+                  <label className={labelClass}>Quận / Huyện <span className="text-error">*</span></label>
+                  <select className={errors.district ? inputErrorClass : inputClass} value={form.district} onChange={(e) => update('district', e.target.value)}>
+                    <option value="">-- Chọn Quận/Huyện --</option>
+                    {DISTRICTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  {fieldError('district')}
                 </div>
 
                 {/* Address */}
