@@ -1,6 +1,7 @@
 package com.totoro.identity.controller;
 
 import com.totoro.identity.dto.ChangePasswordRequest;
+import com.totoro.identity.dto.CompleteOnboardingRequest;
 import com.totoro.identity.dto.UpdateProfileRequest;
 import com.totoro.identity.dto.UserProfileResponse;
 import com.totoro.identity.service.UserService;
@@ -41,6 +42,17 @@ public class UserController {
     public ResponseEntity<String> deleteAccount(Authentication authentication) {
         userService.deleteAccount(authentication.getName());
         return ResponseEntity.ok("Tài khoản đã được xóa");
+    }
+
+    /**
+     * Called once after a new Google sign-up to let the user pick their role
+     * (USER / LANDLORD) and complete their profile (phone, university, bio).
+     */
+    @PostMapping("/me/complete-onboarding")
+    public ResponseEntity<UserProfileResponse> completeOnboarding(
+            Authentication authentication,
+            @Valid @RequestBody CompleteOnboardingRequest request) {
+        return ResponseEntity.ok(userService.completeOnboarding(authentication.getName(), request));
     }
 
     @GetMapping("/{id}")

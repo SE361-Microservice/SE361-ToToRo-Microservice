@@ -64,6 +64,23 @@ const userService = {
     const res = await apiClient.post<string>('/users/me/change-password', data);
     return res.data;
   },
+
+  /**
+   * POST /users/me/complete-onboarding
+   * Called once after a new Google sign-up to choose role + fill profile.
+   */
+  completeOnboarding: async (data: {
+    role: 'USER' | 'LANDLORD';
+    phone?: string;
+    university?: string;
+    bio?: string;
+  }): Promise<import('../types/auth').UserProfileDto> => {
+    const res = await apiClient.post<import('../types/auth').UserProfileDto>(
+      '/users/me/complete-onboarding',
+      data
+    );
+    return res.data;
+  },
 };
 
 export default userService;

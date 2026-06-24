@@ -16,6 +16,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private final User user;
     private Map<String, Object> attributes;
+    private boolean isNewUser;
 
     public CustomUserDetails(User user) {
         this.user = user;
@@ -28,6 +29,13 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public static CustomUserDetails create(User user, Map<String, Object> attributes) {
         CustomUserDetails userDetails = new CustomUserDetails(user);
         userDetails.attributes = attributes;
+        return userDetails;
+    }
+
+    public static CustomUserDetails create(User user, Map<String, Object> attributes, boolean isNewUser) {
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        userDetails.attributes = attributes;
+        userDetails.isNewUser = isNewUser;
         return userDetails;
     }
 

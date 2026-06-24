@@ -49,6 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
+        boolean isNewUser;
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
@@ -59,11 +60,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
             // Update avatar url in case it changed on Google side
             updateExistingUser(user, oAuth2User);
+            isNewUser = false;
         } else {
             user = registerNewGoogleUser(oAuth2User);
+            isNewUser = true;
         }
 
-        return CustomUserDetails.create(user, oAuth2User.getAttributes());
+        return CustomUserDetails.create(user, oAuth2User.getAttributes(), isNewUser);
     }
 
     private User registerNewGoogleUser(OAuth2User oAuth2User) {

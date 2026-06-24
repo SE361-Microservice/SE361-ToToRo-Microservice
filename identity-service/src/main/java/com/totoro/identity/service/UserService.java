@@ -4,6 +4,7 @@ import com.totoro.common.dto.PageResponse;
 import com.totoro.common.dto.UserProfileDto;
 import com.totoro.common.enums.Role;
 import com.totoro.identity.dto.ChangePasswordRequest;
+import com.totoro.identity.dto.CompleteOnboardingRequest;
 import com.totoro.identity.dto.UpdateProfileRequest;
 import com.totoro.identity.dto.UserProfileResponse;
 import com.totoro.identity.entity.AuthProvider;
@@ -97,6 +98,38 @@ public class UserService {
     public void deleteAccount(String email) {
         User user = findUserByEmailOrThrow(email);
         userRepository.delete(user); // Cascade deletes profile
+    }
+
+    /**
+     * Called once after a new Google sign-up.
+     * Allows the user to pick their role (USER or LANDLORD) and
+     * fill in basic profile info (phone, university, bio).
+     * ADMIN role is explicitly forbidden here.
+     */
+    @Transactional
+    public UserProfileResponse completeOnboarding(String email, CompleteOnboardingRequest request) {
+        User user = findUserByEmailOrThrow(email);
+        UserProfile profile = findProfileByUserIdOrThrow(user.getId());
+
+        // Update role (only USER or LANDLORD allowed — validated by DTO annotation)
+        user.setRole(request.getRole().toUpperCase());
+        userRepository.save(user);
+
+        // Update profile fields
+        if (request.getPhone() != null) profile.setPhone(request.getPhone());
+        if (request.getUniversity() != null) profile.setUniversity(request.getUniversity());
+        if (request.getBio() != null) profile.setBio(request.getBio());
+        userProfileRepository.save(profile);
+
+        // Sync to social-service cache
+        try {
+            userEventPublisher.publishUserUpdated(user.getId(), user.getEmail(),
+                    profile.getFullName(), profile.getAvatarUrl());
+        } catch (Exception e) {
+            log.warn("Failed to publish user-updated event after onboarding for userId={}: {}", user.getId(), e.getMessage());
+        }
+
+        return toResponse(user, profile);
     }
 
     // ===================== ADMIN =====================

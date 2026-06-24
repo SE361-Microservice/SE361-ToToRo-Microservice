@@ -145,6 +145,10 @@ jobs:
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
             REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            OAUTH2_REDIRECT_URI=https://gateway-service-628694485991.asia-southeast1.run.app/login/oauth2/code/google
+            FRONTEND_OAUTH2_REDIRECT_URL=https://se361-totoro-fe.vercel.app/oauth2/redirect
 
       - name: Deploy core-service to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2

@@ -29,12 +29,21 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                         Authentication authentication) throws IOException, ServletException {
         String token = tokenProvider.generateToken(authentication);
 
-        // Redirect to frontend with token in query param
-        String targetUrl = UriComponentsBuilder.fromUriString(frontendOAuth2RedirectUrl)
-                .queryParam("token", token)
-                .build().toUriString();
+        // Detect if this is a brand-new Google account
+        boolean isNewUser = false;
+        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            isNewUser = userDetails.isNewUser();
+        }
 
-        log.debug("OAuth2 login success, redirecting to: {}", frontendOAuth2RedirectUrl);
+        // Redirect to frontend with token (and isNewUser flag for onboarding popup)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(frontendOAuth2RedirectUrl)
+                .queryParam("token", token);
+        if (isNewUser) {
+            builder.queryParam("isNewUser", "true");
+        }
+        String targetUrl = builder.build().toUriString();
+
+        log.debug("OAuth2 login success, redirecting to: {}, isNewUser={}", frontendOAuth2RedirectUrl, isNewUser);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
