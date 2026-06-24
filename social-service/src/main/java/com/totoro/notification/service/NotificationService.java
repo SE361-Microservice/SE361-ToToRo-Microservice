@@ -100,10 +100,17 @@ public class NotificationService {
 
     /**
      * Get paginated notifications for the current user.
+     * Queries directly by userId to avoid failures when user is not yet cached.
      */
     public PageResponse<NotificationResponse> getNotifications(Long userId, Pageable pageable) {
-        User user = findUserById(userId);
-        Page<Notification> page = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        // Ensure user exists in local cache (best-effort, don't fail if cache population fails)
+        try {
+            userCacheService.findById(userId);
+        } catch (Exception e) {
+            log.warn("Could not ensure user {} in local cache: {}", userId, e.getMessage());
+        }
+
+        Page<Notification> page = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
 
         List<NotificationResponse> content = page.getContent().stream()
                 .map(this::toResponse)
@@ -123,8 +130,7 @@ public class NotificationService {
      * Get unread notification count for the current user.
      */
     public UnreadCountResponse getUnreadCount(Long userId) {
-        User user = findUserById(userId);
-        long count = notificationRepository.countByUserIdAndIsReadFalse(user.getId());
+        long count = notificationRepository.countByUserIdAndIsReadFalse(userId);
         return UnreadCountResponse.builder().count(count).build();
     }
 
@@ -133,11 +139,10 @@ public class NotificationService {
      */
     @Transactional
     public void markAsRead(Long userId, Long notificationId) {
-        User user = findUserById(userId);
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
 
-        if (!notification.getUser().getId().equals(user.getId())) {
+        if (!notification.getUser().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to access this notification");
         }
 
@@ -150,8 +155,7 @@ public class NotificationService {
      */
     @Transactional
     public int markAllAsRead(Long userId) {
-        User user = findUserById(userId);
-        return notificationRepository.markAllAsRead(user.getId());
+        return notificationRepository.markAllAsRead(userId);
     }
 
     // ==================== HELPERS ====================

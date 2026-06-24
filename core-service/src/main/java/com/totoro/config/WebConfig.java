@@ -9,7 +9,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/api/uploads/**")
-                .addResourceLocations("file:uploads/");
+        // Serve uploaded files from /tmp directory (writable on Cloud Run)
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + tmpDir + "/uploads/");
     }
 }

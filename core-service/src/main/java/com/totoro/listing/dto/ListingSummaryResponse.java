@@ -34,6 +34,7 @@ public class ListingSummaryResponse {
 
     private Double avgRating;
     private Integer reviewCount;
+    private String status;
     private Boolean isSharedOwner;
     private Short maxOccupants;
 

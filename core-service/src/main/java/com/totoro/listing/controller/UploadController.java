@@ -1,5 +1,6 @@
 package com.totoro.listing.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,11 @@ import java.util.UUID;
 @RequestMapping("/api/upload")
 public class UploadController {
 
-    private static final String UPLOAD_DIR = "uploads/general/";
+    /** Use /tmp on Cloud Run (writable), or local dir for development */
+    private static final String UPLOAD_DIR = System.getProperty("java.io.tmpdir") + "/uploads/general/";
+
+    @Value("${app.base-url:}")
+    private String baseUrl;
 
     @PostMapping("/image")
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
@@ -47,11 +52,17 @@ public class UploadController {
             String newFilename = UUID.randomUUID() + extension;
             Files.copy(file.getInputStream(), uploadPath.resolve(newFilename));
 
-            String imageUrl = "/uploads/general/" + newFilename;
+            // Build full URL for serving the image
+            String imageUrl;
+            if (baseUrl != null && !baseUrl.isBlank()) {
+                imageUrl = baseUrl + "/uploads/general/" + newFilename;
+            } else {
+                imageUrl = "/uploads/general/" + newFilename;
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("url", imageUrl));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Không thể tải ảnh lên"));
+                    .body(Map.of("error", "Không thể tải ảnh lên: " + e.getMessage()));
         }
     }
 }

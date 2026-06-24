@@ -454,6 +454,7 @@ public class ListingService {
                 .longitude(listing.getLongitude())
                 .isSharedOwner(listing.getIsSharedOwner())
                 .maxOccupants(listing.getMaxOccupants())
+                .status(listing.getStatus().name())
                 .createdAt(listing.getCreatedAt())
                 .build();
     }
