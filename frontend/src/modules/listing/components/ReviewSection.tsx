@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
 import type { ListingReview } from '../../../types/listing';
+import { reviewService } from '../../../services/reviewService';
 
 interface ReviewSectionProps {
   reviews: ListingReview[];
   avgRating: number;
   reviewCount: number;
   onSubmit?: (review: { rating: number; comment: string }) => void;
+  currentUserId?: number | null;
 }
 
 // ── Star renderer ──────────────────────────────────────────
@@ -62,9 +64,29 @@ function RatingBar({ star, count, total }: { star: number; count: number; total:
 }
 
 // ── Single review card ─────────────────────────────────────
-function ReviewCard({ review }: { review: ListingReview }) {
+function ReviewCard({ review, currentUserId }: { review: ListingReview; currentUserId?: number | null }) {
   const date = new Date(review.createdAt);
   const timeAgo = getTimeAgo(date);
+  const [upvoted, setUpvoted] = useState(false);
+  const [upvoteCount, setUpvoteCount] = useState(review.upvoteCount ?? 0);
+  const [upvoting, setUpvoting] = useState(false);
+
+  const handleUpvote = async () => {
+    if (upvoting || !currentUserId) return;
+    setUpvoting(true);
+    try {
+      if (upvoted) {
+        const res = await reviewService.removeUpvote(Number(review.id));
+        setUpvoted(false);
+        setUpvoteCount(res.upvoteCount);
+      } else {
+        const res = await reviewService.upvote(Number(review.id));
+        setUpvoted(true);
+        setUpvoteCount(res.upvoteCount);
+      }
+    } catch { /* silently fail */ }
+    setUpvoting(false);
+  };
 
   const subRatings = [
     { label: 'Vệ sinh', value: review.ratingCleanliness },
@@ -105,13 +127,25 @@ function ReviewCard({ review }: { review: ListingReview }) {
 
           <p className="mt-2 text-on-surface-variant leading-relaxed text-[15px]">{review.comment}</p>
 
-          {/* Upvote count */}
-          {(review.upvoteCount ?? 0) > 0 && (
-            <div className="mt-2 flex items-center gap-1 text-xs text-on-surface-variant">
-              <span className="material-symbols-outlined text-[14px]">thumb_up</span>
-              <span className="font-bold">{review.upvoteCount}</span> người thấy hữu ích
-            </div>
-          )}
+          {/* Interactive upvote button */}
+          <div className="mt-2 flex items-center gap-1">
+            <button
+              onClick={handleUpvote}
+              disabled={!currentUserId || upvoting}
+              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all duration-200 ${
+                upvoted
+                  ? 'text-primary bg-primary/10 font-bold'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
+              } ${!currentUserId ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 active:scale-95'}`}
+              title={currentUserId ? (upvoted ? 'Bỏ hữu ích' : 'Đánh dấu hữu ích') : 'Đăng nhập để đánh giá hữu ích'}
+            >
+              <span className="material-symbols-outlined text-[14px]">
+                {upvoted ? 'thumb_up' : 'thumb_up_off_alt'}
+              </span>
+              {upvoteCount > 0 && <span className="font-bold">{upvoteCount}</span>}
+              <span>{upvoteCount > 0 ? 'người thấy hữu ích' : 'Hữu ích'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -131,7 +165,7 @@ function getTimeAgo(date: Date): string {
 }
 
 // ── Main component ─────────────────────────────────────────
-export default function ReviewSection({ reviews, avgRating, reviewCount, onSubmit }: ReviewSectionProps) {
+export default function ReviewSection({ reviews, avgRating, reviewCount, onSubmit, currentUserId }: ReviewSectionProps) {
   const [formRating, setFormRating] = useState(0);
   const [formComment, setFormComment] = useState('');
   const [formErrors, setFormErrors] = useState<{ rating?: string; comment?: string }>({});
@@ -185,7 +219,7 @@ export default function ReviewSection({ reviews, avgRating, reviewCount, onSubmi
       {/* Review list */}
       <div className="mb-8">
         {reviews.length > 0 ? (
-          reviews.map(review => <ReviewCard key={review.id} review={review} />)
+          reviews.map(review => <ReviewCard key={review.id} review={review} currentUserId={currentUserId} />)
         ) : (
           <div className="text-center py-12 text-on-surface-variant">
             <span className="material-symbols-outlined text-4xl text-outline mb-2 block">rate_review</span>

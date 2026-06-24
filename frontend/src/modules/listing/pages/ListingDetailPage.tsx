@@ -527,6 +527,7 @@ export default function ListingDetailPage() {
               avgRating={reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.ratingOverall, 0) / reviews.length : 0}
               reviewCount={reviews.length}
               onSubmit={handleReviewSubmit}
+              currentUserId={authUser?.id}
             />
           </div>
 

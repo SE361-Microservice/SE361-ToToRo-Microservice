@@ -50,6 +50,11 @@ public class CommunityPostController {
         communityPostService.deletePost(userId, postId);
         return ResponseEntity.ok("Xóa bài viết thành công");
     }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> toggleLike(@RequestHeader("X-User-Id") Long userId, @PathVariable Long postId) {
+        return ResponseEntity.ok(communityPostService.toggleLike(userId, postId));
+    }
 }
 
 
