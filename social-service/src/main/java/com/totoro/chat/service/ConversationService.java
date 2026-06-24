@@ -9,7 +9,7 @@ import com.totoro.chat.entity.ConversationType;
 import com.totoro.chat.repository.ConversationMemberRepository;
 import com.totoro.chat.repository.ConversationRepository;
 import com.totoro.user.entity.User;
-import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +24,11 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final ConversationMemberRepository conversationMemberRepository;
-    private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
 
     @Transactional
     public ConversationResponse createConversation(Long creatorId, CreateConversationRequest request) {
-        User creator = userRepository.findById(creatorId)
+        User creator = userCacheService.findById(creatorId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + creatorId));
 
         Conversation conversation = conversationRepository.save(Conversation.builder()
@@ -44,7 +44,7 @@ public class ConversationService {
         }
 
         for (Long memberId : memberIds) {
-            User member = userRepository.findById(memberId)
+            User member = userCacheService.findById(memberId)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user thành viên: " + memberId));
             conversationMemberRepository.save(ConversationMember.builder()
                     .conversation(conversation)

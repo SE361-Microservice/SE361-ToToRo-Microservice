@@ -8,7 +8,7 @@ import com.totoro.notification.entity.NotificationType;
 import com.totoro.notification.event.NotificationEvent;
 import com.totoro.notification.repository.NotificationRepository;
 import com.totoro.user.entity.User;
-import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
     private final SimpMessagingTemplate messagingTemplate;
 
     // ==================== EVENT PROCESSING ====================
@@ -49,7 +49,7 @@ public class NotificationService {
     @Transactional
     public void processEvent(NotificationEvent event) {
         try {
-            User user = userRepository.findById(event.getUserId())
+            User user = userCacheService.findById(event.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found: " + event.getUserId()));
 
             // 1. Persist to DB
@@ -157,7 +157,7 @@ public class NotificationService {
     // ==================== HELPERS ====================
 
     private User findUserById(Long userId) {
-        return userRepository.findById(userId)
+        return userCacheService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 

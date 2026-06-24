@@ -8,7 +8,7 @@ import com.totoro.chat.entity.ConversationType;
 import com.totoro.chat.repository.ConversationMemberRepository;
 import com.totoro.chat.repository.ConversationRepository;
 import com.totoro.user.entity.User;
-import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +21,11 @@ public class ConversationMemberService {
 
     private final ConversationRepository conversationRepository;
     private final ConversationMemberRepository conversationMemberRepository;
-    private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
 
     @Transactional
     public void addMember(Long requesterId, Long conversationId, AddMemberRequest request) {
-        User me = userRepository.findById(requesterId)
+        User me = userCacheService.findById(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + requesterId));
 
         ConversationMember myMembership = conversationMemberRepository.findByConversationIdAndUserId(conversationId, me.getId())
@@ -41,7 +41,7 @@ public class ConversationMemberService {
             throw new IllegalArgumentException("Chỉ admin nhóm mới được thêm thành viên");
         }
 
-        User member = userRepository.findById(request.getUserId())
+        User member = userCacheService.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user thành viên"));
 
         if (conversationMemberRepository.existsByConversationIdAndUserId(conversationId, member.getId())) {
@@ -57,7 +57,7 @@ public class ConversationMemberService {
 
     @Transactional
     public void removeMember(Long requesterId, Long conversationId, Long userId) {
-        User me = userRepository.findById(requesterId)
+        User me = userCacheService.findById(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + requesterId));
 
         ConversationMember myMembership = conversationMemberRepository.findByConversationIdAndUserId(conversationId, me.getId())
@@ -70,7 +70,7 @@ public class ConversationMemberService {
     }
 
     public List<MemberProfileDto> listMembers(Long requesterId, Long conversationId) {
-        userRepository.findById(requesterId)
+        userCacheService.findById(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + requesterId));
 
         if (!conversationMemberRepository.existsByConversationIdAndUserId(conversationId, requesterId)) {

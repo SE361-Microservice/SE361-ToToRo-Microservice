@@ -8,7 +8,7 @@ import com.totoro.community.entity.CommunityPostLike;
 import com.totoro.community.repository.CommunityPostLikeRepository;
 import com.totoro.community.repository.CommunityPostRepository;
 import com.totoro.user.entity.User;
-import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +22,11 @@ public class CommunityPostService {
 
     private final CommunityPostRepository communityPostRepository;
     private final CommunityPostLikeRepository communityPostLikeRepository;
-    private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
 
     @Transactional
     public CommunityPostResponse createPost(Long userId, CreateCommunityPostRequest request) {
-        User author = userRepository.findById(userId)
+        User author = userCacheService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + userId));
 
         CommunityPost post = CommunityPost.builder()
@@ -81,7 +81,7 @@ public class CommunityPostService {
     public Map<String, Object> toggleLike(Long userId, Long postId) {
         CommunityPost post = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bài viết"));
-        User user = userRepository.findById(userId)
+        User user = userCacheService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + userId));
 
         var existing = communityPostLikeRepository.findByPostIdAndUserId(postId, userId);

@@ -9,7 +9,7 @@ import com.totoro.matching.entity.SwipeDirection;
 import com.totoro.matching.repository.RoommateMatchRepository;
 import com.totoro.matching.repository.RoommateSwipeRepository;
 import com.totoro.user.entity.User;
-import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +20,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SwipeService {
 
-    private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
     private final RoommateSwipeRepository roommateSwipeRepository;
     private final RoommateMatchRepository roommateMatchRepository;
 
     @Transactional
     public SwipeResponse swipe(Long swiperId, SwipeRequest request) {
-        User swiper = userRepository.findById(swiperId)
+        User swiper = userCacheService.findById(swiperId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + swiperId));
-        User target = userRepository.findById(request.getTargetUserId())
+        User target = userCacheService.findById(request.getTargetUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user mục tiêu: " + request.getTargetUserId()));
 
         if (swiper.getId().equals(target.getId())) {

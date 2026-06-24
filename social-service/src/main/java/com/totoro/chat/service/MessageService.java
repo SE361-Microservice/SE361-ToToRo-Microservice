@@ -9,6 +9,7 @@ import com.totoro.chat.repository.ConversationRepository;
 import com.totoro.chat.repository.MessageRepository;
 import com.totoro.user.entity.User;
 import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -24,11 +25,12 @@ public class MessageService {
     private final ConversationRepository conversationRepository;
     private final ConversationMemberRepository conversationMemberRepository;
     private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public MessageResponse sendMessage(Long senderId, Long conversationId, MessageRequest request) {
-        User sender = userRepository.findById(senderId)
+        User sender = userCacheService.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + senderId));
         ensureMember(conversationId, sender.getId());
         Conversation conversation = conversationRepository.findById(conversationId)

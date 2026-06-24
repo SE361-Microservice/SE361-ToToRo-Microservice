@@ -7,7 +7,7 @@ import com.totoro.matching.dto.RoommateSearchRequest;
 import com.totoro.matching.entity.RoommateProfile;
 import com.totoro.matching.repository.RoommateProfileRepository;
 import com.totoro.user.entity.User;
-import com.totoro.user.repository.UserRepository;
+import com.totoro.user.service.UserCacheService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,11 +27,11 @@ import java.util.List;
 public class RoommateProfileService {
 
     private final RoommateProfileRepository roommateProfileRepository;
-    private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
 
     @Transactional
     public RoommateProfileResponse upsert(Long userId, RoommateProfileRequest request) {
-        User user = userRepository.findById(userId)
+        User user = userCacheService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user: " + userId));
 
         RoommateProfile profile = roommateProfileRepository.findByUserId(user.getId())
