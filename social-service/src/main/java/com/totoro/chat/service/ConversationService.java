@@ -95,7 +95,7 @@ public class ConversationService {
             .id(conversation.getId())
             .type(conversation.getType())
             .name(conversation.getName())
-            .createdById(conversation.getCreatedBy().getId())
+            .createdById(conversation.getCreatedBy() != null ? conversation.getCreatedBy().getId() : null)
             .members(members)
             .createdAt(conversation.getCreatedAt())
             .updatedAt(conversation.getUpdatedAt())
