@@ -12,6 +12,7 @@ interface MapViewProps {
   onMarkerClick?: (id: number | string) => void;
   center?: { lat: number; lng: number };
   zoom?: number;
+  isSatellite?: boolean;
 }
 
 const DEFAULT_CENTER = { lat: 10.762622, lng: 106.660172 };
@@ -21,7 +22,8 @@ export default function MapView({
   focusedListingId, 
   onMarkerClick,
   center = DEFAULT_CENTER,
-  zoom = 13
+  zoom = 13,
+  isSatellite = false
 }: MapViewProps) {
   const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
   const mapRef = useRef<MapRef>(null);
@@ -105,7 +107,11 @@ export default function MapView({
         ref={mapRef}
         {...viewState}
         onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
-        mapStyle={theme === 'dark' ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"}
+        mapStyle={
+          isSatellite 
+            ? "mapbox://styles/mapbox/satellite-streets-v12" 
+            : (theme === 'dark' ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11")
+        }
         mapboxAccessToken={mapboxToken}
         style={{width: '100%', height: '100%'}}
       >

@@ -70,6 +70,7 @@ export default function ListingSearchPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSatellite, setIsSatellite] = useState(false);
 
   // API data state
   const [apiListings, setApiListings] = useState<ListingSummaryResponse[]>([]);
@@ -94,7 +95,7 @@ export default function ListingSearchPage() {
         roomTypes: filters.roomTypes.length > 0 ? filters.roomTypes : undefined,
         minArea: filters.areaRange[0] > 0 ? filters.areaRange[0] : undefined,
         maxArea: filters.areaRange[1] < 100 ? filters.areaRange[1] : undefined,
-        ward: filters.districts.length === 1 ? filters.districts[0] : undefined,
+        district: filters.districts.length === 1 ? filters.districts[0] : undefined,
         tagSlugs: filters.amenities.length > 0 ? filters.amenities : undefined,
         minRating: filters.minRating > 0 ? filters.minRating : undefined,
         sortBy: sort.sortBy,
@@ -468,6 +469,7 @@ export default function ListingSearchPage() {
           <MapView
             listings={visibleListings}
             focusedListingId={hoveredListingId}
+            isSatellite={isSatellite}
           />
 
           {/* Map Overlay Elements */}
@@ -482,9 +484,15 @@ export default function ListingSearchPage() {
               </div>
             )}
 
-            <div className="bg-surface-container-lowest/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold text-on-surface pointer-events-auto cursor-pointer hover:bg-surface-container-highest transition-colors">
-              <span className="material-symbols-outlined text-[18px]">map</span>
-              {t('search.satellite')}
+            <div 
+              onClick={() => setIsSatellite(!isSatellite)}
+              className={clsx(
+                "bg-surface-container-lowest/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold pointer-events-auto cursor-pointer hover:bg-surface-container-highest transition-colors active:scale-95",
+                isSatellite ? "text-primary border border-primary/20" : "text-on-surface"
+              )}
+            >
+              <span className="material-symbols-outlined text-[18px]">{isSatellite ? 'navigation' : 'map'}</span>
+              {isSatellite ? 'Bản đồ thường' : t('search.satellite')}
             </div>
           </div>
         </section>

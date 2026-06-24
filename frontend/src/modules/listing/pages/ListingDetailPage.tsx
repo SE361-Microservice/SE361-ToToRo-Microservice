@@ -34,6 +34,9 @@ export default function ListingDetailPage() {
   const [reportReason, setReportReason] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [isContacting, setIsContacting] = useState(false);
+  const [showPhone, setShowPhone] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const { user: authUser, isAuthenticated } = useAuthStore();
   const navUser = isAuthenticated && authUser ? {
@@ -171,8 +174,9 @@ export default function ListingDetailPage() {
     );
   }
 
-  const coverImage = listing.images?.find(img => img.isCover)?.url;
-  const otherImages = listing.images?.filter(img => !img.isCover) || [];
+  const allImages = listing.images || [];
+  const coverImageObj = allImages.find(img => img.isCover) || allImages[0];
+  const otherImagesObj = allImages.filter(img => img.id !== coverImageObj?.id);
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body">
@@ -255,28 +259,58 @@ export default function ListingDetailPage() {
 
         {/* Image Gallery Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[50vh] min-h-[400px] mb-12 rounded-3xl overflow-hidden group">
-          {coverImage ? (
-            <div className="md:col-span-2 md:row-span-2 relative overflow-hidden">
-              <img src={coverImage} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 cursor-pointer" alt="Cover" />
+          {coverImageObj ? (
+            <div 
+              onClick={() => {
+                setActiveImageIndex(allImages.indexOf(coverImageObj));
+                setIsGalleryOpen(true);
+              }}
+              className="md:col-span-2 md:row-span-2 relative overflow-hidden cursor-pointer"
+            >
+              <img src={coverImageObj.url} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" alt="Cover" />
             </div>
           ) : (
-            <div className="md:col-span-2 md:row-span-2 bg-surface-container"></div>
+            <div className="md:col-span-2 md:row-span-2 bg-surface-container flex items-center justify-center">
+              <span className="material-symbols-outlined text-5xl text-outline-variant">home</span>
+            </div>
           )}
-          
-          {otherImages.map((img, idx) => (
-            <img key={img.id} src={img.url} className={`w-full h-full object-cover transition-transform duration-700 hover:scale-105 cursor-pointer ${idx === 1 ? 'md:col-span-2 md:row-span-2' : ''}`} alt={`View ${idx}`} />
-          ))}
 
-          {/* Placeholder if not enough images */}
-          {otherImages.length === 0 && (
-            <>
-              <div className="bg-surface-container relative overflow-hidden group-hover:bg-surface-container-high transition-colors"></div>
-              <div className="bg-surface-container-low relative overflow-hidden group-hover:bg-surface-container transition-colors"></div>
-              <div className="bg-surface-container relative overflow-hidden group-hover:bg-surface-container-highest transition-colors flex items-center justify-center group/btn cursor-pointer">
-                <span className="font-bold text-on-surface group-hover/btn:scale-110 transition-transform">Xem tất cả ảnh</span>
+          {/* Show up to 4 other images in the bento grid */}
+          {[0, 1, 2, 3].map((idx) => {
+            const img = otherImagesObj[idx];
+            if (!img) {
+              return (
+                <div 
+                  key={`empty-${idx}`}
+                  className="hidden md:flex bg-surface-container-low items-center justify-center border border-outline-variant/10"
+                >
+                  <span className="material-symbols-outlined text-3xl text-outline-variant/50">image</span>
+                </div>
+              );
+            }
+
+            const isLast = idx === 3 && otherImagesObj.length > 4;
+            const remainingCount = otherImagesObj.length - 4;
+
+            return (
+              <div 
+                key={img.id}
+                onClick={() => {
+                  setActiveImageIndex(allImages.indexOf(img));
+                  setIsGalleryOpen(true);
+                }}
+                className="relative overflow-hidden cursor-pointer h-full w-full"
+              >
+                <img src={img.url} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" alt={`View ${idx}`} />
+                {isLast && (
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white backdrop-blur-[2px] transition-all hover:bg-black/50">
+                    <span className="text-2xl font-black font-headline">+{remainingCount} ảnh</span>
+                    <span className="text-xs font-bold uppercase tracking-wider mt-1 opacity-90">Xem tất cả</span>
+                  </div>
+                )}
               </div>
-            </>
-          )}
+            );
+          })}
         </div>
 
         {/* Main Content Layout */}
@@ -527,7 +561,6 @@ export default function ListingDetailPage() {
               avgRating={reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.ratingOverall, 0) / reviews.length : 0}
               reviewCount={reviews.length}
               onSubmit={handleReviewSubmit}
-              currentUserId={authUser?.id}
             />
           </div>
 
@@ -571,9 +604,12 @@ export default function ListingDetailPage() {
                 {isContacting ? 'Đang kết nối...' : 'Nhắn tin Chủ Trọ'}
               </button>
 
-              <button className="w-full bg-surface-container-low text-on-surface py-4 rounded-xl font-bold text-lg hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+              <button 
+                onClick={() => setShowPhone(!showPhone)}
+                className="w-full bg-surface-container-low text-on-surface py-4 rounded-xl font-bold text-lg hover:bg-surface-container transition-colors flex items-center justify-center gap-2"
+              >
                 <span className="material-symbols-outlined text-secondary">phone_in_talk</span>
-                090 xxx xxxx (Xem số)
+                {showPhone ? (listing.landlordPhone || 'Chưa cung cấp SĐT') : '090 xxx xxxx (Xem số)'}
               </button>
 
               {/* Landlord Profile Snippet */}
@@ -630,6 +666,67 @@ export default function ListingDetailPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Image Gallery Carousel Modal */}
+      {isGalleryOpen && allImages.length > 0 && (
+        <div className="fixed inset-0 z-[999] bg-black/95 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 animate-in fade-in duration-200">
+          {/* Top Header */}
+          <div className="w-full max-w-7xl flex items-center justify-between text-white shrink-0">
+            <span className="font-bold text-sm sm:text-base bg-white/10 px-4 py-1.5 rounded-full">
+              {activeImageIndex + 1} / {allImages.length}
+            </span>
+            <button 
+              onClick={() => setIsGalleryOpen(false)}
+              className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 rounded-full transition-all text-white"
+            >
+              <span className="material-symbols-outlined text-[24px]">close</span>
+            </button>
+          </div>
+
+          {/* Main Slide Area */}
+          <div className="relative w-full max-w-5xl flex-1 flex items-center justify-center my-4 overflow-hidden">
+            {/* Left Button */}
+            <button 
+              onClick={() => setActiveImageIndex((activeImageIndex - 1 + allImages.length) % allImages.length)}
+              className="absolute left-4 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-full transition-all"
+            >
+              <span className="material-symbols-outlined text-[28px]">chevron_left</span>
+            </button>
+
+            {/* Image */}
+            <img 
+              src={allImages[activeImageIndex].url} 
+              alt={`Gallery image ${activeImageIndex + 1}`}
+              className="max-w-full max-h-[70vh] object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300"
+            />
+
+            {/* Right Button */}
+            <button 
+              onClick={() => setActiveImageIndex((activeImageIndex + 1) % allImages.length)}
+              className="absolute right-4 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-full transition-all"
+            >
+              <span className="material-symbols-outlined text-[28px]">chevron_right</span>
+            </button>
+          </div>
+
+          {/* Thumbnail Strip */}
+          <div className="w-full max-w-5xl overflow-x-auto py-4 shrink-0 flex gap-3 justify-center scrollbar-thin scrollbar-thumb-white/20">
+            {allImages.map((img, idx) => (
+              <button
+                key={img.id}
+                onClick={() => setActiveImageIndex(idx)}
+                className={`w-16 h-12 sm:w-20 sm:h-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
+                  idx === activeImageIndex 
+                    ? 'border-primary scale-105 shadow-lg' 
+                    : 'border-transparent opacity-60 hover:opacity-100'
+                }`}
+              >
+                <img src={img.url} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

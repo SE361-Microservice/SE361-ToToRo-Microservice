@@ -168,6 +168,7 @@ export interface ListingDetailResponse {
   id: number;
   landlordId: number;
   landlordName: string;
+  landlordPhone?: string;
   title: string;
   description: string;
   address: string;
@@ -202,6 +203,7 @@ export interface ListingSearchParams {
   minPrice?: number;
   maxPrice?: number;
   city?: string;
+  district?: string;
   ward?: string;
   roomType?: string;
   roomTypes?: string[];

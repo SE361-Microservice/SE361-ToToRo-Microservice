@@ -41,10 +41,10 @@ const ROOM_TYPES: { value: string; label: string }[] = [
   { value: 'Chung cư', label: 'Chung cư' },
 ];
 
-// ── Wards for location filter (HCM) ──────────────────────
-const WARDS = [
-  'Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5',
-  'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10',
+// ── Districts for location filter (HCM) ──────────────────
+const DISTRICTS = [
+  'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 7', 'Quận 8',
+  'Quận 10', 'Quận 12', 'Bình Thạnh', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Thủ Đức'
 ];
 
 // ── Helpers ────────────────────────────────────────────────
@@ -196,16 +196,16 @@ export default function SearchFilterPanel({ filters, onChange, onClear, isOpen }
           />
         </FilterSection>
 
-        {/* Ward (Location) */}
+        {/* District (Location) */}
         <FilterSection
-          title="Phường"
+          title="Quận"
           icon="location_on"
           isOpen={expandedSection === 'district'}
           onToggle={() => toggleSection('district')}
           active={filters.districts.length > 0}
         >
           <div className="flex flex-wrap gap-2">
-            {WARDS.map(d => (
+            {DISTRICTS.map(d => (
               <ChipToggle
                 key={d}
                 label={d}

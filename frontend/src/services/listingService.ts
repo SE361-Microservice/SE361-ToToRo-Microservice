@@ -25,7 +25,8 @@ const listingService = {
     if (params.minPrice != null) query.minPrice = String(params.minPrice);
     if (params.maxPrice != null) query.maxPrice = String(params.maxPrice);
     if (params.city) query.city = params.city;
-    if (params.ward) query.ward = params.ward;
+    if (params.district) query.district = params.district;
+    else if (params.ward) query.district = params.ward;
     if (params.roomType) query.roomType = params.roomType;
     if (params.roomTypes && params.roomTypes.length > 0) query.roomTypes = params.roomTypes;
     if (params.minArea != null) query.minArea = String(params.minArea);
