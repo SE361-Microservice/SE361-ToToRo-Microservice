@@ -228,13 +228,91 @@ export default function AiChatWidget() {
     sendMessage(input);
   };
 
-  /* ── Simple markdown renderer ───────────────────────────── */
-  const renderMarkdown = (text: string) => {
-    // Bold
-    let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // Line breaks
-    html = html.replace(/\n/g, '<br/>');
-    return html;
+  /* ── Markdown renderer ───────────────────────────────────── */
+  const renderMarkdown = (text: string): string => {
+    const lines = text.split('\n');
+    const output: string[] = [];
+    let inUl = false;
+    let inOl = false;
+
+    const closeUl = () => { if (inUl) { output.push('</ul>'); inUl = false; } };
+    const closeOl = () => { if (inOl) { output.push('</ol>'); inOl = false; } };
+
+    const inlineFormat = (line: string) => line
+      // Bold + italic combined ***
+      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+      // Bold **
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Italic * (not at start of line to avoid eating bullet markers)
+      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+      // Italic _
+      .replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, '<em>$1</em>')
+      // Inline code
+      .replace(/`([^`]+)`/g, '<code class="ai-inline-code">$1</code>');
+
+    for (const raw of lines) {
+      const line = raw.trimEnd();
+
+      // Heading ###
+      if (/^#{3}\s/.test(line)) {
+        closeUl(); closeOl();
+        output.push(`<h4 class="ai-md-h4">${inlineFormat(line.replace(/^#{3}\s/, ''))}</h4>`);
+        continue;
+      }
+      // Heading ##
+      if (/^#{2}\s/.test(line)) {
+        closeUl(); closeOl();
+        output.push(`<h3 class="ai-md-h3">${inlineFormat(line.replace(/^#{2}\s/, ''))}</h3>`);
+        continue;
+      }
+
+      // Blockquote >
+      if (/^>\s?/.test(line)) {
+        closeUl(); closeOl();
+        output.push(`<blockquote class="ai-md-blockquote">${inlineFormat(line.replace(/^>\s?/, ''))}</blockquote>`);
+        continue;
+      }
+
+      // Horizontal rule ---
+      if (/^-{3,}$/.test(line.trim())) {
+        closeUl(); closeOl();
+        output.push('<hr class="ai-md-hr"/>');
+        continue;
+      }
+
+      // Unordered list: * item  or  - item
+      const ulMatch = line.match(/^(\s*)[\*\-]\s+(.+)/);
+      if (ulMatch) {
+        closeOl();
+        if (!inUl) { output.push('<ul class="ai-md-ul">'); inUl = true; }
+        output.push(`<li>${inlineFormat(ulMatch[2])}</li>`);
+        continue;
+      }
+
+      // Ordered list: 1. item
+      const olMatch = line.match(/^(\s*)\d+\.\s+(.+)/);
+      if (olMatch) {
+        closeUl();
+        if (!inOl) { output.push('<ol class="ai-md-ol">'); inOl = true; }
+        output.push(`<li>${inlineFormat(olMatch[2])}</li>`);
+        continue;
+      }
+
+      // Empty line → paragraph break
+      if (line.trim() === '') {
+        closeUl(); closeOl();
+        output.push('<br/>');
+        continue;
+      }
+
+      // Normal paragraph line
+      closeUl(); closeOl();
+      output.push(`<span>${inlineFormat(line)}</span><br/>`);
+    }
+
+    closeUl();
+    closeOl();
+    return output.join('');
   };
 
   /* ── Render ─────────────────────────────────────────────── */
@@ -268,17 +346,24 @@ export default function AiChatWidget() {
 
           {/* Messages */}
           <div className="ai-chat-messages" ref={scrollRef}>
-            {messages.map((msg) => (
-              <div key={msg.id} className={`ai-chat-msg ai-chat-msg--${msg.role}`}>
-                {msg.role === 'assistant' && <span className="ai-msg-avatar">🌿</span>}
-                {msg.content && (
-                  <div
-                    className="ai-msg-bubble"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
-                  />
-                )}
-              </div>
-            ))}
+            {messages.map((msg, idx) => {
+              // Mark the last assistant message as "streaming" while in progress
+              const isStreamingMsg =
+                isStreaming &&
+                idx === messages.length - 1 &&
+                msg.role === 'assistant';
+              return (
+                <div key={msg.id} className={`ai-chat-msg ai-chat-msg--${msg.role}`}>
+                  {msg.role === 'assistant' && <span className="ai-msg-avatar">🌿</span>}
+                  {msg.content && (
+                    <div
+                      className={`ai-msg-bubble${isStreamingMsg ? ' ai-msg-bubble--streaming' : ''}`}
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
+                    />
+                  )}
+                </div>
+              );
+            })}
 
             {/* Quick Replies for the latest message */}
             {!isStreaming && messages.length > 0 && messages[messages.length - 1].quickReplies && (

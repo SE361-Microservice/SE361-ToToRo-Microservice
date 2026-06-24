@@ -195,6 +195,81 @@
   color: #fff;
 }
 
+/* ── Markdown elements inside AI bubbles ─────────────────────── */
+
+.ai-msg-bubble .ai-md-ul,
+.ai-msg-bubble .ai-md-ol {
+  margin: 6px 0 6px 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ai-msg-bubble .ai-md-ul li,
+.ai-msg-bubble .ai-md-ol li {
+  line-height: 1.55;
+}
+
+.ai-msg-bubble .ai-md-ul {
+  list-style-type: disc;
+}
+
+.ai-msg-bubble .ai-md-ol {
+  list-style-type: decimal;
+}
+
+.ai-msg-bubble .ai-md-h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #7cd4a0;
+  margin: 8px 0 4px;
+  letter-spacing: 0.3px;
+}
+
+.ai-msg-bubble .ai-md-h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #9ee0b8;
+  margin: 6px 0 3px;
+}
+
+.ai-inline-code {
+  background: rgba(124, 212, 160, 0.12);
+  color: #7cd4a0;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+}
+
+.ai-msg-bubble .ai-md-blockquote {
+  border-left: 3px solid #2d8f5e;
+  padding-left: 10px;
+  margin: 6px 0;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.ai-msg-bubble .ai-md-hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+
+/* Blinking cursor while streaming */
+.ai-msg-bubble--streaming::after {
+  content: '▋';
+  color: #7cd4a0;
+  animation: ai-cursor-blink 0.7s steps(1) infinite;
+  margin-left: 1px;
+}
+
+@keyframes ai-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 /* ── Typing Indicator ────────────────────────────────────────── */
 
 .ai-chat-typing {
