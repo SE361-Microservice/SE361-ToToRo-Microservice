@@ -184,12 +184,16 @@ export default function ListingSearchPage() {
     role: authUser.role
   } : undefined;
 
+  const navVariant = isAuthenticated
+    ? (authUser?.role === 'ADMIN' || authUser?.role === 'LANDLORD' ? 'dashboard' : 'student')
+    : 'guest';
+
   return (
     <div className="bg-background text-on-surface font-body antialiased h-screen flex flex-col overflow-hidden">
       {/* TopNavBar */}
       <div className="fixed top-0 left-0 w-full z-[100]">
         <TopNavBar
-          variant={isAuthenticated ? "student" : "guest"}
+          variant={navVariant}
           navLinks={[
             { label: 'Trang chủ', href: '/home' },
             { label: 'Tìm phòng', href: '/search', active: true },

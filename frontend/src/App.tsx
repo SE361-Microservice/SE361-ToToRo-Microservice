@@ -93,17 +93,25 @@ export default function App() {
         <Route path="/reset-password"  element={<ResetPasswordPage />} />
         <Route path="/oauth2/redirect" element={<OAuthRedirectPage />} />
 
-        {/* Authenticated — requires login */}
+        {/* Authenticated — requires login (shared/common routes) */}
         <Route element={<ProtectedRoute />}>
+          <Route path="/notifications"   element={<NotificationsPage />} />
+          <Route path="/profile"         element={<ProfilePage />} />
+        </Route>
+
+        {/* Student-only routes */}
+        <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
           <Route path="/home"            element={<StudentHomePage />} />
           <Route path="/saved"           element={<SavedListingsPage />} />
           <Route path="/matching"        element={<MatchingSwipePage />} />
           <Route path="/matching/matches" element={<MatchListPage />} />
           <Route path="/community"       element={<CommunityPage />} />
-          <Route path="/notifications"   element={<NotificationsPage />} />
           <Route path="/messages"        element={<ChatPage variant="student" />} />
           <Route path="/messages/:conversationId" element={<ChatPage variant="student" />} />
-          <Route path="/profile"         element={<ProfilePage />} />
+        </Route>
+
+        {/* Landlord-only routes */}
+        <Route element={<ProtectedRoute allowedRoles={['LANDLORD']} />}>
           <Route path="/dashboard"       element={<LandlordDashboard />} />
           <Route path="/dashboard/listings"       element={<MyListingsPage />} />
           <Route path="/dashboard/listings/new"   element={<NewListingPage />} />
@@ -111,6 +119,10 @@ export default function App() {
           <Route path="/dashboard/messages"        element={<ChatPage variant="landlord" />} />
           <Route path="/dashboard/messages/:conversationId" element={<ChatPage variant="landlord" />} />
           <Route path="/dashboard/analytics"  element={<LandlordAnalyticsPage />} />
+        </Route>
+
+        {/* Admin-only routes */}
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route path="/admin"           element={<AdminDashboard />} />
           <Route path="/admin/users"     element={<AdminUsersPage />} />
           <Route path="/admin/listings"  element={<AdminListingsPage />} />

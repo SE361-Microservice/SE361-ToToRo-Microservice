@@ -10,6 +10,8 @@ public enum NotificationType {
     ROOMMATE_MATCH,
     /** A new chat message was received */
     NEW_MESSAGE,
+    /** Legacy or alternative chat message type */
+    CHAT_MESSAGE,
     /** A review received a reply */
     REVIEW_REPLY,
     /** A listing was rejected by admin */

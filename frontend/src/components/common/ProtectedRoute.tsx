@@ -11,9 +11,14 @@ import useAuthStore from '../../store/authStore';
  *     <Route path="/home" element={<HomePage />} />
  *   </Route>
  */
-export default function ProtectedRoute() {
+interface ProtectedRouteProps {
+  allowedRoles?: string[];
+}
+
+export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isHydrated = useAuthStore((s) => s.isHydrated);
+  const user = useAuthStore((s) => s.user);
 
   // Still initialising — don't redirect yet, just show a loading state
   if (!isHydrated) {
@@ -31,5 +36,16 @@ export default function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
 
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    if (user.role === 'ADMIN') {
+      return <Navigate to="/admin" replace />;
+    } else if (user.role === 'LANDLORD') {
+      return <Navigate to="/dashboard" replace />;
+    } else {
+      return <Navigate to="/home" replace />;
+    }
+  }
+
   return <Outlet />;
 }
+

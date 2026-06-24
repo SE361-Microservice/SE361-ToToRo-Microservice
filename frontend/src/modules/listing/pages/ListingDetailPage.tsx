@@ -53,6 +53,10 @@ export default function ListingDetailPage() {
     { label: 'Tin nhắn', href: '/messages' },
   ] : [];
 
+  const navVariant = isAuthenticated
+    ? (authUser?.role === 'ADMIN' || authUser?.role === 'LANDLORD' ? 'dashboard' : 'student')
+    : 'guest';
+
   useEffect(() => {
     if (!id) return;
     
@@ -142,7 +146,7 @@ export default function ListingDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background text-on-background font-body">
-        <TopNavBar variant={isAuthenticated ? "student" : "guest"} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
+        <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
         <main className="pt-[72px] pb-24 max-w-7xl mx-auto px-4 md:px-8">
           <div className="py-20 text-center">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-surface-container rounded-full">
@@ -159,7 +163,7 @@ export default function ListingDetailPage() {
   if (error || !listing) {
     return (
       <div className="min-h-screen bg-background text-on-background font-body">
-        <TopNavBar variant={isAuthenticated ? "student" : "guest"} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
+        <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
         <main className="pt-[72px] pb-24 max-w-7xl mx-auto px-4 md:px-8">
           <div className="py-20 text-center">
             <span className="material-symbols-outlined text-5xl text-error/50 mb-3 block">error</span>
@@ -180,7 +184,7 @@ export default function ListingDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body">
-      <TopNavBar variant={isAuthenticated ? (authUser?.role === 'ADMIN' ? 'dashboard' : 'student') : "guest"} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
+      <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
 
       <main className="pt-[72px] pb-24 max-w-7xl mx-auto px-4 md:px-8">
         

@@ -6,6 +6,7 @@ import DashboardLayout from '../../../layouts/DashboardLayout';
 import type { SideNavProps } from '../../../components/common/SideNav';
 import useNotifications from '../hooks/useNotifications';
 import useAuthStore from '../../../store/authStore';
+import { useLandlordNav } from '../../../hooks/useLandlordNav';
 import type { NotificationTab } from '../hooks/useNotifications';
 import type { Notification } from '../../../types/notification';
 import { NOTIFICATION_META } from '../../../types/notification';
@@ -61,17 +62,21 @@ function NotificationsContent() {
 
   const { user: authUser } = useAuthStore();
   const isAdmin = authUser?.role === 'ADMIN';
+  const isLandlord = authUser?.role === 'LANDLORD';
+
+  const backUrl = isAdmin ? '/admin' : isLandlord ? '/dashboard' : '/home';
+  const backLabel = isAdmin ? 'Quay lại Admin' : isLandlord ? 'Quay lại Bảng điều khiển' : 'Trang chủ';
 
   return (
     <div className="max-w-2xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
         <button
-          onClick={() => navigate(isAdmin ? '/admin' : '/home')}
+          onClick={() => navigate(backUrl)}
           className="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-          {isAdmin ? 'Quay lại Admin' : 'Trang chủ'}
+          {backLabel}
         </button>
         <span>•</span>
         <span className="text-on-surface font-bold">Thông báo</span>
@@ -217,6 +222,7 @@ function NotificationsContent() {
 export default function NotificationsPage() {
   const { user: authUser, isAuthenticated } = useAuthStore();
   const isAdmin = authUser?.role === 'ADMIN';
+  const isLandlord = authUser?.role === 'LANDLORD';
 
   const navUser = isAuthenticated && authUser ? {
     name: authUser.fullName || authUser.email,
@@ -242,9 +248,19 @@ export default function NotificationsPage() {
     avatar: (isAuthenticated && authUser) ? (authUser.avatarUrl || '') : '',
   }), [authUser, isAuthenticated]);
 
+  const { sideNav: landlordSideNav, landlordUser } = useLandlordNav('overview' as any);
+
   if (isAdmin) {
     return (
       <DashboardLayout sideNavProps={adminSideNav} user={adminUser}>
+        <NotificationsContent />
+      </DashboardLayout>
+    );
+  }
+
+  if (isLandlord) {
+    return (
+      <DashboardLayout sideNavProps={landlordSideNav} user={landlordUser}>
         <NotificationsContent />
       </DashboardLayout>
     );
