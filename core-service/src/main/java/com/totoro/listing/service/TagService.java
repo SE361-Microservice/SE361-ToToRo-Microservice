@@ -45,6 +45,27 @@ public class TagService {
     }
 
     @Transactional
+    public TagDto updateTag(Long id, String name) {
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
+
+        String slug = toSlug(name);
+
+        if (!tag.getName().equalsIgnoreCase(name)) {
+            // Check if another tag has this name or slug
+            boolean duplicate = tagRepository.findAll().stream()
+                    .anyMatch(t -> !t.getId().equals(id) && (t.getName().equalsIgnoreCase(name) || t.getSlug().equalsIgnoreCase(slug)));
+            if (duplicate) {
+                throw new IllegalArgumentException("Tag with name or slug already exists");
+            }
+            tag.setName(name);
+            tag.setSlug(slug);
+            tag = tagRepository.save(tag);
+        }
+        return toDto(tag);
+    }
+
+    @Transactional
     public void deleteTag(Long id) {
         if (!tagRepository.existsById(id)) {
             throw new IllegalArgumentException("Tag not found");

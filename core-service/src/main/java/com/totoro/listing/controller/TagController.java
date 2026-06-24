@@ -40,6 +40,19 @@ public class TagController {
     }
 
     /**
+     * Update a tag. ADMIN only.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<TagDto> updateTag(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Tag name is required");
+        }
+        TagDto tag = tagService.updateTag(id, name.trim());
+        return ResponseEntity.ok(tag);
+    }
+
+    /**
      * Delete a tag. ADMIN only.
      */
         @DeleteMapping("/{id}")

@@ -35,14 +35,14 @@ spring:
         - id: core-service
           uri: ${CORE_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/api/listings/**, /api/locations/**, /api/admin/listings/**, /api/saved-listings/**, /api/tags/**
+            - Path=/api/listings/**, /api/locations/**, /api/admin/listings/**, /api/saved-listings/**, /api/tags/**, /api/upload/**, /api/uploads/**
           filters:
             - JwtAuthenticationFilter
 
         - id: social-service
           uri: ${SOCIAL_SERVICE_URL:http://localhost:8083}
           predicates:
-            - Path=/api/chat/**, /api/matching/**, /api/community/**, /api/notifications/**, /api/reviews/**, /api/reports/**, /api/admin/reports/**
+            - Path=/api/chat/**, /api/matching/**, /api/community/**, /api/notifications/**, /api/reviews/**, /api/reports/**, /api/admin/reports/**, /api/conversations/**, /api/roommate-profiles/**, /api/presence/**
           filters:
             - JwtAuthenticationFilter
 

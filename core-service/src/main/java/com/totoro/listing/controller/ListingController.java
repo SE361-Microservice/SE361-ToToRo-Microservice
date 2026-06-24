@@ -62,6 +62,12 @@ public class ListingController {
         return ResponseEntity.ok(commandService.rejectListing(id));
     }
 
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> incrementViewCount(@PathVariable Long id) {
+        // Stub: Not implemented in DB schema yet, returning 200 OK
+        return ResponseEntity.ok().build();
+    }
+
     // ===== QUERIES (reads) =====
 
     @GetMapping("/{id}")

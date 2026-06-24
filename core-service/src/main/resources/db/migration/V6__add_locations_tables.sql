@@ -1,0 +1,10 @@
+CREATE TABLE provinces (
+    code VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE wards (
+    code VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    province_code VARCHAR(20) NOT NULL REFERENCES provinces(code) ON DELETE CASCADE
+);
