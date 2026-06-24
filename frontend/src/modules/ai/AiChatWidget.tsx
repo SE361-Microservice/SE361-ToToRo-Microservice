@@ -28,10 +28,16 @@ interface ChatMessage {
 
 export default function AiChatWidget() {
   const { pathname } = useLocation();
-  // Hide widget entirely on chat/messages pages and auth pages
-  const isHiddenPage = pathname.includes('/messages') || pathname.includes('/login') || pathname.includes('/register') || pathname.includes('/forgot-password');
-
   const user = useAuthStore((s: { user: UserProfileDto | null }) => s.user);
+
+  // Hide widget entirely on chat/messages pages, auth pages, and for landlord/admin roles
+  const isHiddenPage = 
+    pathname.includes('/messages') || 
+    pathname.includes('/login') || 
+    pathname.includes('/register') || 
+    pathname.includes('/forgot-password') ||
+    user?.role === 'LANDLORD' ||
+    user?.role === 'ADMIN';
 
   // ── Per-user storage keys: chat history and thread are isolated per account ──
   const storageKey = `totoro_ai_chat_messages_${user?.id ?? 'guest'}`;
