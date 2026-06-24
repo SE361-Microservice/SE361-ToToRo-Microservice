@@ -24,6 +24,20 @@ export default function UserAvatarMenu({ user }: { user: NavUser }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const getRoleLabel = (role: string) => {
+    switch (role?.toUpperCase()) {
+      case 'USER':
+      case 'STUDENT':
+        return t('register.roleStudent');
+      case 'LANDLORD':
+        return t('register.roleLandlord');
+      case 'ADMIN':
+        return 'Admin';
+      default:
+        return role;
+    }
+  };
+
   return (
     <div className="relative" ref={menuRef}>
       <button 
@@ -39,7 +53,7 @@ export default function UserAvatarMenu({ user }: { user: NavUser }) {
             <Avatar src={user.avatar} alt={user.name} size="sm" />
             <div>
               <p className="font-headline font-bold text-on-background line-clamp-1">{user.name}</p>
-              <p className="text-xs text-on-surface-variant font-medium mt-0.5">{user.role}</p>
+              <p className="text-xs text-on-surface-variant font-medium mt-0.5">{getRoleLabel(user.role)}</p>
             </div>
           </div>
           

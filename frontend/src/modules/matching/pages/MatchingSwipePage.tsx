@@ -47,6 +47,7 @@ export default function MatchingSwipePage() {
   const [feedProfiles, setFeedProfiles] = useState<RoommateProfileResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [matchedProfile, setMatchedProfile] = useState<RoommateProfileResponse | null>(null);
+  const [showNoProfilePopup, setShowNoProfilePopup] = useState(false);
 
   const [aiTip, setAiTip] = useState<string>('');
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
@@ -59,11 +60,15 @@ export default function MatchingSwipePage() {
     const fetchFeedAndProfile = async () => {
       try {
         const [feed, profile] = await Promise.all([
-          matchingService.getFeed(0, 20),
+          matchingService.getFeed(0, 20).catch(() => []), // Fallback to empty if feed fails
           matchingService.getMyProfile().catch(() => null) // Ignore error if no profile yet
         ]);
         setFeedProfiles(feed);
-        if (profile) setMyProfile(profile);
+        if (profile) {
+          setMyProfile(profile);
+        } else {
+          setShowNoProfilePopup(true);
+        }
       } catch (err) {
         console.error('Failed to load matching data', err);
       } finally {
@@ -276,34 +281,34 @@ export default function MatchingSwipePage() {
       {activeTab === 'profile' && (
         <section className="px-6 max-w-5xl mx-auto pb-8">
           <ProfileEditForm 
-            key={myProfile?.id || 'new'} 
-            initialProfile={myProfile ? {
-              id: String(myProfile.id),
-              userId: String(myProfile.userId),
-              fullName: myProfile.fullName,
-              avatar: myProfile.avatar,
-              age: myProfile.age,
-              gender: myProfile.gender,
-              university: myProfile.university,
-              preferredCity: myProfile.preferredCity ?? undefined,
-              preferredWard: myProfile.preferredWard ?? undefined,
-              budgetMin: myProfile.budgetMin ?? 0,
-              budgetMax: myProfile.budgetMax ?? 0,
-              sleepTime: myProfile.sleepTime,
-              wakeTime: myProfile.wakeTime,
-              cleanliness: myProfile.cleanliness ?? 3,
-              isSmoker: myProfile.isSmoker ?? false,
-              drinksAlcohol: myProfile.drinksAlcohol ?? false,
-              hasPets: myProfile.hasPets ?? false,
-              isIntrovert: myProfile.isIntrovert,
-              okWithSmoker: myProfile.okWithSmoker ?? false,
-              okWithPets: myProfile.okWithPets ?? false,
-              bio: myProfile.bio ?? undefined,
-              isVerified: myProfile.isVerified ?? false,
-              isActive: myProfile.isActive,
-              compatibilityScore: myProfile.compatibilityScore,
-              location: myProfile.location,
-            } as Partial<RoommateProfile> : undefined} 
+            key={`${myProfile?.id || 'new'}_${authUser?.id || 'guest'}_${authUser?.university || ''}`} 
+            initialProfile={{
+              id: myProfile ? String(myProfile.id) : undefined,
+              userId: myProfile ? String(myProfile.userId) : (authUser ? String(authUser.id) : undefined),
+              fullName: myProfile?.fullName || authUser?.fullName || '',
+              avatar: myProfile?.avatar || authUser?.avatarUrl || '',
+              age: myProfile?.age ?? 20,
+              gender: myProfile?.gender ?? '',
+              university: myProfile?.university || authUser?.university || '',
+              preferredCity: myProfile?.preferredCity ?? undefined,
+              preferredWard: myProfile?.preferredWard ?? undefined,
+              budgetMin: myProfile?.budgetMin ?? 2000000,
+              budgetMax: myProfile?.budgetMax ?? 4000000,
+              sleepTime: myProfile?.sleepTime,
+              wakeTime: myProfile?.wakeTime,
+              cleanliness: myProfile?.cleanliness ?? 3,
+              isSmoker: myProfile?.isSmoker ?? false,
+              drinksAlcohol: myProfile?.drinksAlcohol ?? false,
+              hasPets: myProfile?.hasPets ?? false,
+              isIntrovert: myProfile?.isIntrovert,
+              okWithSmoker: myProfile?.okWithSmoker ?? false,
+              okWithPets: myProfile?.okWithPets ?? false,
+              bio: myProfile?.bio ?? undefined,
+              isVerified: myProfile?.isVerified ?? false,
+              isActive: myProfile?.isActive ?? true,
+              compatibilityScore: myProfile?.compatibilityScore,
+              location: myProfile?.location,
+            } as Partial<RoommateProfile>} 
             onSave={handleProfileSave} 
           />
         </section>
@@ -362,6 +367,39 @@ export default function MatchingSwipePage() {
                 className="flex-1 bg-surface-container text-on-surface font-bold py-3 rounded-xl hover:bg-surface-container-high transition-all"
               >
                 Tiếp tục lướt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* "No Roommate Profile" Suggestion Popup */}
+      {showNoProfilePopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-surface-container-lowest rounded-3xl p-8 max-w-md mx-4 text-center shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="text-6xl mb-4">🏠</div>
+            <h2 className="font-headline text-2xl font-extrabold text-primary mb-2">
+              Chưa có Hồ sơ Roommate
+            </h2>
+            <p className="text-on-surface-variant mb-6 text-sm leading-relaxed">
+              Bạn cần tạo hồ sơ tìm bạn ở ghép (lối sống, thói quen sinh hoạt,...) để hệ thống AI phân tích độ tương thích và đề xuất những người bạn phù hợp nhất.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowNoProfilePopup(false);
+                  setActiveTab('profile');
+                }}
+                className="flex-1 bg-primary text-on-primary font-bold py-3 rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[20px]">person_edit</span>
+                Tạo hồ sơ ngay
+              </button>
+              <button
+                onClick={() => setShowNoProfilePopup(false)}
+                className="flex-1 bg-surface-container text-on-surface font-bold py-3 rounded-xl hover:bg-surface-container-high transition-all"
+              >
+                Để sau
               </button>
             </div>
           </div>
