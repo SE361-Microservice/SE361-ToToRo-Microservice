@@ -71,7 +71,6 @@ export default function AiChatWidget() {
 
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
   // Sync threadId when user changes (e.g. switching accounts without full reload)
   useEffect(() => {
@@ -187,11 +186,6 @@ export default function AiChatWidget() {
               : m,
           ),
         );
-        if (event.pending_action) {
-          setPendingAction(event.pending_action);
-        } else {
-          setPendingAction(null);
-        }
         setIsStreaming(false);
       },
       // onError
@@ -210,7 +204,6 @@ export default function AiChatWidget() {
 
   /* ── Confirm / Cancel action ────────────────────────────── */
   const handleConfirm = (confirmed: boolean) => {
-    setPendingAction(null);
     // Show a user-visible message in the chat history
     const displayText = confirmed ? '✅ Có, thực hiện' : '❌ Không, hủy';
     setMessages((prev) => [
