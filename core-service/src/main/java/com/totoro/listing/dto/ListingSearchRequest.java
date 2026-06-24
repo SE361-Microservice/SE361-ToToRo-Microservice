@@ -13,6 +13,8 @@ public class ListingSearchRequest {
     private String district;
     private String city;
     private String roomType;
+    private Double minArea;
+    private Double maxArea;
 
     // --- Advanced filters ---
     private List<String> tagSlugs;

@@ -227,15 +227,20 @@ public class ListingCommandService {
 
     ListingDetailResponse toDetailResponse(Listing listing) {
         String landlordName = "";
+        String landlordPhone = "";
         try {
             UserProfileDto profile = userServiceClient.getUserProfile(listing.getLandlordId());
-            if (profile != null) landlordName = profile.getFullName();
+            if (profile != null) {
+                landlordName = profile.getFullName();
+                landlordPhone = profile.getPhone();
+            }
         } catch (Exception ignored) {}
 
         return ListingDetailResponse.builder()
                 .id(listing.getId())
                 .landlordId(listing.getLandlordId())
                 .landlordName(landlordName)
+                .landlordPhone(landlordPhone)
                 .title(listing.getTitle())
                 .description(listing.getDescription())
                 .address(listing.getAddress())

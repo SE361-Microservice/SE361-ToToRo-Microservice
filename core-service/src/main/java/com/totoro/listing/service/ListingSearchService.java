@@ -31,7 +31,7 @@ public class ListingSearchService {
      */
     @Cacheable(
             value = "listing-search",
-            key = "#request.city + ':' + #request.district + ':' + #request.minPrice + ':' + #request.maxPrice + ':' + #request.roomType + ':' + #request.page + ':' + #request.size",
+            key = "#request.city + ':' + #request.district + ':' + #request.minPrice + ':' + #request.maxPrice + ':' + #request.roomType + ':' + #request.page + ':' + #request.size + ':' + #request.sortBy + ':' + #request.sortDir",
             condition = "#request.latitude == null"
     )
     public PageResponse<ListingSummaryResponse> search(ListingSearchRequest request) {
@@ -150,6 +150,14 @@ public class ListingSearchService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("priceRent"), request.getMaxPrice()));
             }
 
+            // Area range
+            if (request.getMinArea() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("areaM2"), request.getMinArea()));
+            }
+            if (request.getMaxArea() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("areaM2"), request.getMaxArea()));
+            }
+
             // District
             if (request.getDistrict() != null && !request.getDistrict().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("district")),
@@ -177,6 +185,10 @@ public class ListingSearchService {
         if (request.getMinPrice() != null && listing.getPriceRent() < request.getMinPrice())
             return false;
         if (request.getMaxPrice() != null && listing.getPriceRent() > request.getMaxPrice())
+            return false;
+        if (request.getMinArea() != null && (listing.getAreaM2() == null || listing.getAreaM2().doubleValue() < request.getMinArea()))
+            return false;
+        if (request.getMaxArea() != null && (listing.getAreaM2() == null || listing.getAreaM2().doubleValue() > request.getMaxArea()))
             return false;
         if (request.getDistrict() != null && !request.getDistrict().isBlank()) {
             String district = listing.getDistrict();

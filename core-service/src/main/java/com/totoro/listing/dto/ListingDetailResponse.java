@@ -19,6 +19,7 @@ public class ListingDetailResponse {
     private Long id;
     private Long landlordId;
     private String landlordName;
+    private String landlordPhone;
 
     private String title;
     private String description;

@@ -185,6 +185,7 @@ public class UserService {
                 .role(parseRole(user.getRole()))
                 .fullName(profile != null ? profile.getFullName() : null)
                 .avatarUrl(profile != null ? profile.getAvatarUrl() : null)
+                .phone(profile != null ? profile.getPhone() : null)
                 .build();
     }
 
@@ -209,6 +210,7 @@ public class UserService {
                             .role(parseRole(user.getRole()))
                             .fullName(profile != null ? profile.getFullName() : null)
                             .avatarUrl(profile != null ? profile.getAvatarUrl() : null)
+                            .phone(profile != null ? profile.getPhone() : null)
                             .build();
                 }
         ));

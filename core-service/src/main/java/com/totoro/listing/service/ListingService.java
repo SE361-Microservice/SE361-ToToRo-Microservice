@@ -379,10 +379,12 @@ public class ListingService {
 
     public ListingDetailResponse toDetailResponse(Listing listing) {
         String landlordName = "";
+        String landlordPhone = "";
         try {
             UserProfileDto profile = userServiceClient.getUserProfile(listing.getLandlordId());
             if (profile != null) {
                 landlordName = profile.getFullName();
+                landlordPhone = profile.getPhone();
             }
         } catch (Exception ignored) {
         }
@@ -391,6 +393,7 @@ public class ListingService {
                 .id(listing.getId())
                 .landlordId(listing.getLandlordId())
                 .landlordName(landlordName)
+                .landlordPhone(landlordPhone)
                 .title(listing.getTitle())
                 .description(listing.getDescription())
                 .address(listing.getAddress())

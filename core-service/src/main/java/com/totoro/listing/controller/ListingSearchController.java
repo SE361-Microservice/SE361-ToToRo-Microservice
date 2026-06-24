@@ -36,6 +36,8 @@ public class ListingSearchController {
             @RequestParam(required = false) Double latitude,
             @RequestParam(required = false) Double longitude,
             @RequestParam(required = false) Double radiusKm,
+            @RequestParam(required = false) Double minArea,
+            @RequestParam(required = false) Double maxArea,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -51,6 +53,8 @@ public class ListingSearchController {
         request.setLatitude(latitude);
         request.setLongitude(longitude);
         request.setRadiusKm(radiusKm);
+        request.setMinArea(minArea);
+        request.setMaxArea(maxArea);
         request.setPage(page);
         request.setSize(size);
         request.setSortBy(sortBy);
