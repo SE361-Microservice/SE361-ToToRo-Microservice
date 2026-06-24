@@ -60,6 +60,7 @@ public class ConversationService {
         return toResponse(conversation);
     }
 
+    @Transactional(readOnly = true)
     public List<ConversationResponse> getMyConversations(Long userId) {
         return conversationMemberRepository.findByUserId(userId)
                 .stream()
@@ -67,6 +68,7 @@ public class ConversationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ConversationResponse getConversation(Long userId, Long conversationId) {
         if (!conversationMemberRepository.existsByConversationIdAndUserId(conversationId, userId)) {
             throw new IllegalArgumentException("Bạn không thuộc cuộc trò chuyện này");
