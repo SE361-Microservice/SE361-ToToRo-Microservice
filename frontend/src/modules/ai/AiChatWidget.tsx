@@ -234,9 +234,20 @@ export default function AiChatWidget() {
     const output: string[] = [];
     let inUl = false;
     let inOl = false;
+    let inTable = false;
+    let tableRows: string[] = [];
 
     const closeUl = () => { if (inUl) { output.push('</ul>'); inUl = false; } };
     const closeOl = () => { if (inOl) { output.push('</ol>'); inOl = false; } };
+    const closeTable = () => {
+      if (inTable) {
+        output.push('<div class="ai-table-container"><table class="ai-md-table"><tbody>');
+        output.push(tableRows.join(''));
+        output.push('</tbody></table></div>');
+        inTable = false;
+        tableRows = [];
+      }
+    };
 
     const inlineFormat = (line: string) => line
       // Bold + italic combined ***
@@ -252,6 +263,28 @@ export default function AiChatWidget() {
 
     for (const raw of lines) {
       const line = raw.trimEnd();
+
+      // Table row
+      const isTableRow = /^\|(.*)\|$/.test(line.trim());
+      if (isTableRow) {
+        closeUl(); closeOl();
+        if (!inTable) {
+          inTable = true;
+          tableRows = [];
+        }
+        const contentInside = line.trim().slice(1, -1);
+        const isSeparator = /^[:\-\s\|]+$/.test(contentInside);
+        if (!isSeparator) {
+          const cells = contentInside.split('|').map(c => c.trim());
+          const isHeader = tableRows.length === 0;
+          const cellTag = isHeader ? 'th' : 'td';
+          const trContent = cells.map(cell => `<${cellTag}>${inlineFormat(cell)}</${cellTag}>`).join('');
+          tableRows.push(`<tr>${trContent}</tr>`);
+        }
+        continue;
+      } else {
+        closeTable();
+      }
 
       // Heading ###
       if (/^#{3}\s/.test(line)) {
@@ -312,8 +345,16 @@ export default function AiChatWidget() {
 
     closeUl();
     closeOl();
+    closeTable();
     return output.join('');
   };
+
+  const lastMessage = messages[messages.length - 1];
+  const showConfirmButtons =
+    lastMessage &&
+    lastMessage.role === 'assistant' &&
+    lastMessage.pendingAction &&
+    !isStreaming;
 
   /* ── Render ─────────────────────────────────────────────── */
   if (isHiddenPage) return null;
@@ -391,7 +432,7 @@ export default function AiChatWidget() {
             )}
 
             {/* Confirmation buttons */}
-            {pendingAction && !isStreaming && (
+            {showConfirmButtons && (
               <div className="ai-chat-confirm">
                 <button className="ai-confirm-yes" onClick={() => handleConfirm(true)}>
                   ✅ Có, thực hiện

@@ -105,7 +105,10 @@ export default function PostCard({ post, currentUser, onDelete }: PostCardProps)
         const uploadRes = await apiClient.post<{ url: string }>('/upload/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        if (baseUrl.endsWith('/api')) {
+          baseUrl = baseUrl.slice(0, -4);
+        }
         imageUrl = `${baseUrl}/api${uploadRes.data.url}`;
       }
 

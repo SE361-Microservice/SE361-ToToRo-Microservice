@@ -94,8 +94,16 @@ export default function useNotifications() {
       stompClientInstance = null;
     }
 
+    const getWsBaseUrl = () => {
+      let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+      if (baseUrl.endsWith('/api')) {
+        baseUrl = baseUrl.slice(0, -4);
+      }
+      return baseUrl;
+    };
+
     const stompClient = new Client({
-      webSocketFactory: () => new SockJS(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/ws?token=${token}`),
+      webSocketFactory: () => new SockJS(`${getWsBaseUrl()}/ws?token=${token}`),
       connectHeaders: { Authorization: `Bearer ${token}` },
       debug: () => {},
       reconnectDelay: 5000,

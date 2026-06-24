@@ -1,8 +1,13 @@
 import clsx from 'clsx';
 
-// Backend OAuth2 authorize endpoint — Spring redirects to Google from here
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-const OAUTH2_AUTHORIZE_URL = `${BASE_URL}/oauth2/authorize/google`;
+const getOAuthUrl = () => {
+  let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  if (baseUrl.endsWith('/api')) {
+    baseUrl = baseUrl.slice(0, -4);
+  }
+  return `${baseUrl}/oauth2/authorize/google`;
+};
+const OAUTH2_AUTHORIZE_URL = getOAuthUrl();
 
 
 interface GoogleOAuthButtonProps {

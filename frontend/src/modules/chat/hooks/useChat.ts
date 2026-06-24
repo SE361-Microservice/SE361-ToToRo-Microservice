@@ -128,8 +128,16 @@ export function useChat() {
     ]).then(([{ Client }, { default: SockJS }]) => {
       if (cancelled) return;
 
+      const getWsBaseUrl = () => {
+        let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        if (baseUrl.endsWith('/api')) {
+          baseUrl = baseUrl.slice(0, -4);
+        }
+        return baseUrl;
+      };
+
       const client = new Client({
-        webSocketFactory: () => new SockJS(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/ws?token=${token}`),
+        webSocketFactory: () => new SockJS(`${getWsBaseUrl()}/ws?token=${token}`),
         debug: () => {},
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,

@@ -62,7 +62,10 @@ export default function MessageInput({ onSend, disabled }: Props) {
         const response = await apiClient.post<{ url: string }>('/upload/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        if (baseUrl.endsWith('/api')) {
+          baseUrl = baseUrl.slice(0, -4);
+        }
         const fullUrl = `${baseUrl}/api${response.data.url}`;
         // Send as image message with the full URL
         onSend(fullUrl, 'image');

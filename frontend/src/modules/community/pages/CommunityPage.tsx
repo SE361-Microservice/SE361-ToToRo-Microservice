@@ -81,7 +81,10 @@ export default function CommunityPage() {
         const uploadRes = await apiClient.post<{ url: string }>('/upload/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        if (baseUrl.endsWith('/api')) {
+          baseUrl = baseUrl.slice(0, -4);
+        }
         imageUrls.push(`${baseUrl}/api${uploadRes.data.url}`);
       }
 

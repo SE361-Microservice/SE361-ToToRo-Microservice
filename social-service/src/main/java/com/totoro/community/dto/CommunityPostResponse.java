@@ -21,6 +21,7 @@ public class CommunityPostResponse {
     private String content;
     private Long listingId;
     private long likeCount;
+    private boolean likedByMe;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

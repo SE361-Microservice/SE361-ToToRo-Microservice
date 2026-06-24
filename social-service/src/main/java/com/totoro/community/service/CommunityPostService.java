@@ -35,20 +35,20 @@ public class CommunityPostService {
                 .content(request.getContent())
                 .listingId(request.getListingId())
                 .build();
-        return toResponse(communityPostRepository.save(post));
+        return toResponse(communityPostRepository.save(post), userId);
     }
 
-    public List<CommunityPostResponse> getPosts() {
+    public List<CommunityPostResponse> getPosts(Long currentUserId) {
         return communityPostRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(post -> toResponse(post, currentUserId))
                 .toList();
     }
 
-    public CommunityPostResponse getPostById(Long postId) {
+    public CommunityPostResponse getPostById(Long postId, Long currentUserId) {
         CommunityPost post = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bài viết"));
-        return toResponse(post);
+        return toResponse(post, currentUserId);
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class CommunityPostService {
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         post.setListingId(request.getListingId());
-        return toResponse(communityPostRepository.save(post));
+        return toResponse(communityPostRepository.save(post), userId);
     }
 
     @Transactional
@@ -101,8 +101,9 @@ public class CommunityPostService {
         return Map.of("liked", liked, "likeCount", likeCount);
     }
 
-    private CommunityPostResponse toResponse(CommunityPost post) {
+    private CommunityPostResponse toResponse(CommunityPost post, Long currentUserId) {
         long likeCount = communityPostLikeRepository.countByPostId(post.getId());
+        boolean likedByMe = currentUserId != null && communityPostLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
         return CommunityPostResponse.builder()
                 .id(post.getId())
                 .authorId(post.getAuthor().getId())
@@ -113,6 +114,7 @@ public class CommunityPostService {
                 .content(post.getContent())
                 .listingId(post.getListingId())
                 .likeCount(likeCount)
+                .likedByMe(likedByMe)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

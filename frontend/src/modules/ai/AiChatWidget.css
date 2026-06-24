@@ -456,3 +456,38 @@
     right: 16px;
   }
 }
+
+/* ── Table Styling ───────────────────────────────────────────── */
+
+.ai-table-container {
+  overflow-x: auto;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.ai-md-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.ai-md-table th,
+.ai-md-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.ai-md-table th {
+  background: rgba(124, 212, 160, 0.12);
+  color: #7cd4a0;
+  font-weight: bold;
+}
+
+.ai-md-table tr:last-child td {
+  border-bottom: none;
+}
+

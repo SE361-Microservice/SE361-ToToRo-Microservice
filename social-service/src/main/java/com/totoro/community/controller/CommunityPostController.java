@@ -28,13 +28,16 @@ public class CommunityPostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CommunityPostResponse>> getPosts() {
-        return ResponseEntity.ok(communityPostService.getPosts());
+    public ResponseEntity<List<CommunityPostResponse>> getPosts(
+            @RequestHeader(value = "X-User-Id", required = false) Long userId) {
+        return ResponseEntity.ok(communityPostService.getPosts(userId));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<CommunityPostResponse> getPostById(@PathVariable Long postId) {
-        return ResponseEntity.ok(communityPostService.getPostById(postId));
+    public ResponseEntity<CommunityPostResponse> getPostById(
+            @PathVariable Long postId,
+            @RequestHeader(value = "X-User-Id", required = false) Long userId) {
+        return ResponseEntity.ok(communityPostService.getPostById(postId, userId));
     }
 
     @PutMapping("/{postId}")
