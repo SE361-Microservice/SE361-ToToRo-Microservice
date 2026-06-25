@@ -42,6 +42,11 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
             "/api/auth/google/**",
             "/api/listings",              // ← public GET for listings
             "/api/listings/**",           // ← public GET for listing detail
+            "/api/tags",                  // ← public GET for tags
+            "/api/reviews",               // ← public GET for reviews
+            "/api/reviews/**",            // ← public GET for reviews detail/sub-paths
+            "/api/community/posts",       // ← public GET for community posts
+            "/api/community/posts/**",     // ← public GET for community posts detail/sub-paths
             "/oauth2/**",
             "/login/oauth2/**",
             "/v3/api-docs/**",
