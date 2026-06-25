@@ -255,7 +255,7 @@ export default function ChatPage({ variant }: ChatPageProps) {
   const compatInfo = useMemo(() => {
     if (!selectedConversation || selectedConversation.type !== 'DIRECT') return null;
     const other = getOtherUser(selectedConversation);
-    if (!other || other.role !== 'student') return null;
+    if (!other || (other.role !== 'student' && other.role !== 'USER')) return null;
     if (!currentUser) return null;
     const key1 = `${currentUser.id}-${other.id}`;
     const key2 = `${other.id}-${currentUser.id}`;
@@ -470,7 +470,7 @@ export default function ChatPage({ variant }: ChatPageProps) {
         variant="student" 
         navLinks={studentNavLinks} 
         user={navUser} 
-        extraActions={authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} 
+        extraActions={authUser?.role === 'USER' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} 
       />
 
       <div className="flex flex-1 pt-16 overflow-hidden">

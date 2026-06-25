@@ -4,7 +4,7 @@
 export type ConversationType = 'DIRECT' | 'GROUP';
 export type MessageType = 'text' | 'image' | 'file' | 'system';
 export type MemberRole = 'admin' | 'member';
-export type UserRole = 'student' | 'landlord';
+export type UserRole = 'student' | 'landlord' | 'USER' | 'LANDLORD';
 
 export interface ChatUser {
   id: number;

@@ -55,7 +55,7 @@ export function useChat() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [tabFilter, setTabFilter] = useState<TabFilter>('all');
-  const [typingUsers, _setTypingUsers] = useState<Record<number, number[]>>({});
+  const [typingUsers] = useState<Record<number, number[]>>({});
 
   // Ref to access selectedId inside WebSocket callbacks without stale closures
   const selectedIdRef = useRef<number | null>(null);
