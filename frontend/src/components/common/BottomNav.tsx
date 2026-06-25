@@ -36,7 +36,7 @@ export default function BottomNav({ items, centerFAB, shape = 'bar' }: BottomNav
       )}
     >
       <div className="flex items-center justify-around px-4 py-2">
-        {displayItems.map((item, _idx) => {
+        {displayItems.map((item) => {
           // Center FAB slot
           if (item === null && centerFAB) {
             return (

@@ -8,16 +8,16 @@ import type { PageResponse } from '../../../types/api';
 import Modal from '../../../components/core/Modal';
 import { useToast } from '../../../hooks/useToast';
 
-const ROLES = ['STUDENT', 'LANDLORD', 'ADMIN'] as const;
+const ROLES = ['USER', 'LANDLORD', 'ADMIN'] as const;
 
 const roleLabels: Record<string, string> = {
-  STUDENT: 'Sinh viên',
+  USER: 'Sinh viên',
   LANDLORD: 'Chủ nhà',
   ADMIN: 'Quản trị viên',
 };
 
 const roleColors: Record<string, string> = {
-  STUDENT: 'bg-tertiary-container text-on-tertiary-container',
+  USER: 'bg-tertiary-container text-on-tertiary-container',
   LANDLORD: 'bg-secondary-container text-on-secondary-container',
   ADMIN: 'bg-primary-container text-on-primary-container',
 };
@@ -161,7 +161,7 @@ export default function AdminUsersPage() {
         <div className="bg-tertiary-container/30 p-6 rounded-2xl border border-tertiary-container/50">
           <span className="text-xs font-label font-bold tracking-widest text-tertiary uppercase">Sinh viên</span>
           <p className="text-3xl font-headline font-extrabold mt-1 text-on-tertiary-container">
-            {users.filter(u => u.role === 'STUDENT').length}
+            {users.filter(u => u.role === 'USER').length}
           </p>
         </div>
         <div className="bg-secondary-container/30 p-6 rounded-2xl border border-secondary-container/50">
@@ -194,7 +194,7 @@ export default function AdminUsersPage() {
         )}
 
         {/* User Rows */}
-        {!isLoading && filteredUsers.map((user, _idx) => (
+        {!isLoading && filteredUsers.map((user) => (
           <div
             key={user.email}
             className="grid grid-cols-1 md:grid-cols-12 items-center px-6 py-5 border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors"
@@ -389,7 +389,7 @@ export default function AdminUsersPage() {
                     <div>
                       <p className="font-bold text-on-surface">{roleLabels[role]}</p>
                       <p className="text-xs text-on-surface-variant">
-                        {role === 'STUDENT' && 'Tìm phòng, ghép bạn ở, đánh giá'}
+                        {role === 'USER' && 'Tìm phòng, ghép bạn ở, đánh giá'}
                         {role === 'LANDLORD' && 'Đăng tin, quản lý phòng trọ'}
                         {role === 'ADMIN' && 'Toàn quyền quản trị hệ thống'}
                       </p>

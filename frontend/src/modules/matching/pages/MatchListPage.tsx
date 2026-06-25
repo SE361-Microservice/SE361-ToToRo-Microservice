@@ -43,7 +43,7 @@ export default function MatchListPage() {
           try {
             const profile = await matchingService.getProfileByUserId(otherUserId);
             enriched.push({ match: m, profile });
-          } catch (e) {
+          } catch {
             console.warn(`Could not load profile for user ${otherUserId}`);
           }
         }
