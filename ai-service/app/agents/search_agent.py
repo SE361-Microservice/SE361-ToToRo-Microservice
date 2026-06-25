@@ -100,6 +100,42 @@ def build_search_agent():
         """LLM processes messages and decides next action."""
         messages = list(state["messages"])
 
+        confirmed = state.get("confirmed")
+        pending = state.get("pending_action")
+
+        if confirmed is True and pending:
+            action_name = pending["action_type"]
+            target_id = pending["target_id"]
+            import uuid
+            tool_call_id = f"call_{uuid.uuid4().hex}"
+
+            args = {}
+            if action_name == "save_listing":
+                args = {"listing_id": target_id}
+            elif action_name == "initiate_chat":
+                args = {"target_id": target_id}
+
+            ai_msg = AIMessage(
+                content=f"Đang thực hiện {action_name}...",
+                tool_calls=[{
+                    "name": action_name,
+                    "args": args,
+                    "id": tool_call_id,
+                }]
+            )
+            return {"messages": [ai_msg]}
+
+        if confirmed is False and pending:
+            cancel_msg = AIMessage(content=(
+                "Đã hủy! Không sao, bạn có thể quyết định sau. "
+                "Còn muốn tìm kiếm gì khác không? 😊"
+            ))
+            return {
+                "messages": [cancel_msg],
+                "pending_action": None,
+                "confirmed": None,
+            }
+
         # Inject system prompt if not already present
         if not messages or not isinstance(messages[0], SystemMessage):
             messages.insert(0, SystemMessage(content=SEARCH_AGENT_SYSTEM_PROMPT))

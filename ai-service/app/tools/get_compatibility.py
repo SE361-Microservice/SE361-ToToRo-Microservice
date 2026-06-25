@@ -1,21 +1,22 @@
 """Tool: get_compatibility_score — Tính điểm tương thích với bạn phòng."""
 
 from langchain_core.tools import tool
+from langchain_core.runnables import RunnableConfig
 from app.clients.matching_client import MatchingClient
 from app.agents.swipe_commentary import compute_compatibility
 
 
 @tool
-async def get_compatibility_score(target_profile_id: str, current_user_id: str = "") -> str:
+async def get_compatibility_score(target_profile_id: str, config: RunnableConfig) -> str:
     """Tính điểm tương thích giữa user hiện tại và một người cụ thể.
 
     Args:
         target_profile_id: ID profile của người muốn kiểm tra tương thích
-        current_user_id: ID user hiện tại (tự động lấy từ context)
 
     Returns:
         Điểm tương thích và phân tích chi tiết.
     """
+    current_user_id = config.get("configurable", {}).get("user_id", "")
     client = MatchingClient()
 
     current_profile = await client.get_profile_by_user(current_user_id) if current_user_id else None
