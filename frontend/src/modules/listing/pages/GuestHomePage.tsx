@@ -103,7 +103,12 @@ export default function GuestHomePage() {
             {t('guest.hero.subtitle')}
           </p>
 
-          <SearchBar className="w-full max-w-2xl" />
+          <SearchBar
+            className="w-full max-w-2xl"
+            onSearch={(query) => {
+              window.dispatchEvent(new CustomEvent('totoro-ai-search', { detail: { query } }));
+            }}
+          />
 
           {/* Trending tags */}
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">

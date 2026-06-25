@@ -159,7 +159,7 @@ export default function AiChatWidget() {
       {
         message: trimmed,
         thread_id: threadId.current,
-        user_id: user?.email || 'anonymous',
+        user_id: user?.id?.toString() || 'anonymous',
         confirm_action: confirmAction ?? null,
       },
       // onToken
@@ -207,6 +207,44 @@ export default function AiChatWidget() {
       },
     );
   }, [isStreaming, user]);
+
+  // Listen for search event from the home page SearchBar
+  useEffect(() => {
+    const handleSearchEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ query: string }>;
+      const query = customEvent.detail?.query;
+      if (query) {
+        setIsOpen(true);
+        sendMessage(query);
+      }
+    };
+    window.addEventListener('totoro-ai-search', handleSearchEvent);
+    return () => {
+      window.removeEventListener('totoro-ai-search', handleSearchEvent);
+    };
+  }, [sendMessage]);
+
+  // Reset chat history and thread ID
+  const handleResetChat = useCallback(() => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện và bắt đầu hội thoại mới?")) {
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(threadKey);
+
+      const newTid = `thread_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(threadKey, newTid);
+      threadId.current = newTid;
+
+      setMessages([
+        {
+          id: 'welcome',
+          role: 'assistant',
+          content: 'Xin chào! 🌿 Mình là **Totoro AI**, trợ lý tìm phòng trọ cho sinh viên.\n\nBạn cần mình giúp gì nào?',
+          timestamp: new Date(),
+          quickReplies: ['🏠 Tìm phòng trọ', '👥 Tìm bạn ở ghép', '📊 So sánh phòng'],
+        },
+      ]);
+    }
+  }, [storageKey, threadKey]);
 
   /* ── Confirm / Cancel action ────────────────────────────── */
   const handleConfirm = (confirmed: boolean) => {
@@ -322,11 +360,12 @@ export default function AiChatWidget() {
       }
 
       // Ordered list: 1. item
-      const olMatch = line.match(/^(\s*)\d+\.\s+(.+)/);
+      const olMatch = line.match(/^(\s*)(\d+)\.\s+(.+)/);
       if (olMatch) {
         closeUl();
-        if (!inOl) { output.push('<ol class="ai-md-ol">'); inOl = true; }
-        output.push(`<li>${inlineFormat(olMatch[2])}</li>`);
+        const startNum = parseInt(olMatch[2], 10);
+        if (!inOl) { output.push(`<ol class="ai-md-ol" start="${startNum}">`); inOl = true; }
+        output.push(`<li>${inlineFormat(olMatch[3])}</li>`);
         continue;
       }
 
@@ -381,7 +420,16 @@ export default function AiChatWidget() {
                 <div className="ai-chat-subtitle">Trợ lý tìm phòng thông minh</div>
               </div>
             </div>
-            <button className="ai-chat-close" onClick={() => setIsOpen(false)}>✕</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                className="ai-chat-reset"
+                onClick={handleResetChat}
+                title="Xóa lịch sử trò chuyện"
+              >
+                <span className="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+              <button className="ai-chat-close" onClick={() => setIsOpen(false)}>✕</button>
+            </div>
           </div>
 
           {/* Messages */}

@@ -46,7 +46,7 @@ export default function SearchBar({
       />
 
       {/* AI CTA */}
-      <Button variant="primary" size="sm" icon="auto_awesome" iconPosition="left">
+      <Button type="submit" variant="primary" size="sm" icon="auto_awesome" iconPosition="left">
         Tìm với AI
       </Button>
     </form>
