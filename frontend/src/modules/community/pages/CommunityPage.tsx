@@ -136,26 +136,24 @@ export default function CommunityPage() {
         </div>
 
         {/* Create Post Box */}
-        <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 mb-8 shadow-sm transition-all duration-300">
-          {!isCreateExpanded ? (
-            <div className="flex gap-3 items-center">
-              {navUser?.avatar ? (
-                <img src={navUser.avatar} alt={navUser.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold uppercase flex-shrink-0">
-                  {navUser?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                </div>
-              )}
-              <button 
-                onClick={() => setIsCreateExpanded(true)}
-                className="flex-1 bg-surface-container hover:bg-surface-container-high transition-colors text-left px-4 py-3 rounded-full text-on-surface-variant/70 text-sm"
-              >
-                Bạn muốn chia sẻ điều gì hôm nay?
-              </button>
+        {!isAuthenticated ? (
+          <div className="bg-gradient-to-br from-primary-container/30 to-secondary-container/20 border border-primary/10 rounded-2xl p-6 mb-8 shadow-sm text-center flex flex-col items-center gap-3">
+            <span className="material-symbols-outlined text-4xl text-primary">rate_review</span>
+            <div>
+              <h3 className="font-headline font-bold text-lg text-on-surface">Bạn muốn đăng bài chia sẻ?</h3>
+              <p className="text-sm text-on-surface-variant mt-1">Đăng nhập tài khoản ToToRo để thảo luận, chia sẻ kinh nghiệm tìm phòng và tìm bạn ở ghép.</p>
             </div>
-          ) : (
-            <form onSubmit={handleCreatePost} className="animate-in fade-in zoom-in-95 duration-200 origin-top">
-              <div className="flex gap-3 mb-4">
+            <button
+              onClick={() => window.location.assign('/login')}
+              className="px-6 py-2 bg-primary text-on-primary font-bold text-sm rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+            >
+              Đăng nhập ngay
+            </button>
+          </div>
+        ) : (
+          <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 mb-8 shadow-sm transition-all duration-300">
+            {!isCreateExpanded ? (
+              <div className="flex gap-3 items-center">
                 {navUser?.avatar ? (
                   <img src={navUser.avatar} alt={navUser.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 ) : (
@@ -163,105 +161,123 @@ export default function CommunityPage() {
                     {navUser?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                   </div>
                 )}
-                <div className="flex-1">
-                  <p className="font-bold text-on-surface">{user?.email?.split('@')[0] || 'Người dùng'}</p>
-                </div>
+                <button 
+                  onClick={() => setIsCreateExpanded(true)}
+                  className="flex-1 bg-surface-container hover:bg-surface-container-high transition-colors text-left px-4 py-3 rounded-full text-on-surface-variant/70 text-sm cursor-pointer"
+                >
+                  Bạn muốn chia sẻ điều gì hôm nay?
+                </button>
               </div>
-
-              <input
-                type="text"
-                placeholder="Tiêu đề bài viết..."
-                value={newPostTitle}
-                onChange={(e) => setNewPostTitle(e.target.value)}
-                className="w-full bg-transparent text-lg font-bold text-on-surface placeholder:text-on-surface-variant/50 border-none outline-none mb-3"
-                autoFocus
-              />
-              <textarea
-                placeholder="Nội dung chi tiết..."
-                value={newPostContent}
-                onChange={(e) => setNewPostContent(e.target.value)}
-                rows={4}
-                className="w-full bg-transparent text-on-surface placeholder:text-on-surface-variant/50 border-none outline-none resize-none mb-2"
-              />
-
-              {/* Image Previews */}
-              {postImagePreviews.length > 0 && (
-                <div className="flex gap-2 flex-wrap mb-3">
-                  {postImagePreviews.map((preview, i) => (
-                    <div key={i} className="relative">
-                      <img src={preview} alt={`Preview ${i + 1}`} className="h-20 w-20 rounded-lg object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePostImage(i)}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform"
-                      >
-                        ✕
-                      </button>
+            ) : (
+              <form onSubmit={handleCreatePost} className="animate-in fade-in zoom-in-95 duration-200 origin-top">
+                <div className="flex gap-3 mb-4">
+                  {navUser?.avatar ? (
+                    <img src={navUser.avatar} alt={navUser.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold uppercase flex-shrink-0">
+                      {navUser?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                     </div>
-                  ))}
+                  )}
+                  <div className="flex-1">
+                    <p className="font-bold text-on-surface">{user?.email?.split('@')[0] || 'Người dùng'}</p>
+                  </div>
                 </div>
-              )}
 
-              {/* Attached Listing Preview */}
-              {attachedListing && (
-                <div className="mb-3 relative">
-                  <ListingAttachmentCard
-                    listingId={attachedListing.id}
-                    title={attachedListing.title}
-                    address={attachedListing.address}
-                    coverImage={attachedListing.coverImageUrl}
-                    price={attachedListing.priceRent}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setAttachedListing(null)}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform shadow"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
+                <input
+                  type="text"
+                  placeholder="Tiêu đề bài viết..."
+                  value={newPostTitle}
+                  onChange={(e) => setNewPostTitle(e.target.value)}
+                  className="w-full bg-transparent text-lg font-bold text-on-surface placeholder:text-on-surface-variant/50 border-none outline-none mb-3"
+                  autoFocus
+                />
+                <textarea
+                  placeholder="Nội dung chi tiết..."
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                  rows={4}
+                  className="w-full bg-transparent text-on-surface placeholder:text-on-surface-variant/50 border-none outline-none resize-none mb-2"
+                />
 
-              {/* Hidden file input */}
-              <input
-                ref={postFileRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleAddPostImages}
-              />
+                {/* Image Previews */}
+                {postImagePreviews.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    {postImagePreviews.map((preview, i) => (
+                      <div key={i} className="relative">
+                        <img src={preview} alt={`Preview ${i + 1}`} className="h-20 w-20 rounded-lg object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePostImage(i)}
+                          className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              <div className="flex justify-between items-center pt-3 border-t border-outline-variant/10">
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => setShowListingPicker(true)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors tooltip-wrapper" title="Đính kèm phòng">
-                    <span className="material-symbols-outlined text-[20px]">holiday_village</span>
-                  </button>
-                  <button type="button" onClick={() => postFileRef.current?.click()} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors tooltip-wrapper" title="Thêm ảnh">
-                    <span className="material-symbols-outlined text-[20px]">image</span>
-                  </button>
+                {/* Attached Listing Preview */}
+                {attachedListing && (
+                  <div className="mb-3 relative">
+                    <ListingAttachmentCard
+                      listingId={attachedListing.id}
+                      title={attachedListing.title}
+                      address={attachedListing.address}
+                      coverImage={attachedListing.coverImageUrl}
+                      price={attachedListing.priceRent}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setAttachedListing(null)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform shadow"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                {/* Hidden file input */}
+                <input
+                  ref={postFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleAddPostImages}
+                />
+
+                <div className="flex justify-between items-center pt-3 border-t border-outline-variant/10">
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setShowListingPicker(true)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors tooltip-wrapper cursor-pointer" title="Đính kèm phòng">
+                      <span className="material-symbols-outlined text-[20px]">holiday_village</span>
+                    </button>
+                    <button type="button" onClick={() => postFileRef.current?.click()} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors tooltip-wrapper cursor-pointer" title="Thêm ảnh">
+                      <span className="material-symbols-outlined text-[20px]">image</span>
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      type="button" 
+                      onClick={() => { setIsCreateExpanded(false); setPostImageFiles([]); setPostImagePreviews([]); setAttachedListing(null); }}
+                      className="px-4 py-2 font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors text-sm cursor-pointer"
+                    >
+                      Hủy
+                    </button>
+                    <button 
+                      type="submit"
+                      disabled={!newPostTitle.trim() || !newPostContent.trim() || isSubmitting}
+                      className="px-6 py-2 font-bold text-on-primary bg-primary hover:opacity-90 disabled:opacity-50 rounded-xl transition-colors text-sm flex items-center gap-2 cursor-pointer"
+                    >
+                      {isSubmitting && <span className="material-symbols-outlined animate-spin text-[16px]">sync</span>}
+                      {isSubmitting ? 'Đang đăng...' : 'Đăng bài'}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button 
-                    type="button" 
-                    onClick={() => { setIsCreateExpanded(false); setPostImageFiles([]); setPostImagePreviews([]); setAttachedListing(null); }}
-                    className="px-4 py-2 font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors text-sm"
-                  >
-                    Hủy
-                  </button>
-                  <button 
-                    type="submit"
-                    disabled={!newPostTitle.trim() || !newPostContent.trim() || isSubmitting}
-                    className="px-6 py-2 font-bold text-on-primary bg-primary hover:opacity-90 disabled:opacity-50 rounded-xl transition-colors text-sm flex items-center gap-2"
-                  >
-                    {isSubmitting && <span className="material-symbols-outlined animate-spin text-[16px]">sync</span>}
-                    {isSubmitting ? 'Đang đăng...' : 'Đăng bài'}
-                  </button>
-                </div>
-              </div>
-            </form>
-          )}
-        </div>
+              </form>
+            )}
+          </div>
+        )}
 
         {/* Posts Feed */}
         <div>

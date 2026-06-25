@@ -29,6 +29,8 @@ export default function ListingDetailPage() {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Login Required Modal State
+  const [isLoginRequiredModalOpen, setIsLoginRequiredModalOpen] = useState(false);
   // Report Modal State
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
@@ -89,6 +91,10 @@ export default function ListingDetailPage() {
   }, [id]);
 
   const handleToggleSave = async () => {
+    if (!isAuthenticated) {
+      setIsLoginRequiredModalOpen(true);
+      return;
+    }
     if (!listing || isSaving) return;
     
     setIsSaving(true);
@@ -104,6 +110,10 @@ export default function ListingDetailPage() {
   };
 
   const handleReviewSubmit = async (data: { rating: number; comment: string }) => {
+    if (!isAuthenticated) {
+      setIsLoginRequiredModalOpen(true);
+      return;
+    }
     if (!listing) return;
     try {
       const newReview = await reviewService.createReview({
@@ -146,7 +156,7 @@ export default function ListingDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background text-on-background font-body">
-        <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
+        <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'USER' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
         <main className="pt-[72px] pb-24 max-w-7xl mx-auto px-4 md:px-8">
           <div className="py-20 text-center">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-surface-container rounded-full">
@@ -163,7 +173,7 @@ export default function ListingDetailPage() {
   if (error || !listing) {
     return (
       <div className="min-h-screen bg-background text-on-background font-body">
-        <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
+        <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'USER' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
         <main className="pt-[72px] pb-24 max-w-7xl mx-auto px-4 md:px-8">
           <div className="py-20 text-center">
             <span className="material-symbols-outlined text-5xl text-error/50 mb-3 block">error</span>
@@ -184,7 +194,7 @@ export default function ListingDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body">
-      <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
+      <TopNavBar variant={navVariant} user={navUser} navLinks={navLinks} extraActions={isAuthenticated && authUser?.role === 'USER' ? [{ icon: 'bookmark', label: 'Nhà trọ đã lưu', onClick: () => window.location.assign('/saved') }] : undefined} />
 
       <main className="pt-[72px] pb-24 max-w-7xl mx-auto px-4 md:px-8">
         
@@ -253,7 +263,13 @@ export default function ListingDetailPage() {
               Chia sẻ
             </button>
             <button 
-              onClick={() => setIsReportModalOpen(true)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setIsLoginRequiredModalOpen(true);
+                } else {
+                  setIsReportModalOpen(true);
+                }
+              }}
               className="p-3 rounded-full border-2 border-outline-variant text-on-surface flex items-center justify-center hover:bg-error-container hover:text-on-error-container hover:border-error/20 transition-colors tooltip-wrapper"
               title="Báo cáo vi phạm"
             >
@@ -566,6 +582,7 @@ export default function ListingDetailPage() {
               avgRating={reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.ratingOverall, 0) / reviews.length : 0}
               reviewCount={reviews.length}
               onSubmit={handleReviewSubmit}
+              currentUserId={authUser?.id}
             />
           </div>
 
@@ -580,7 +597,7 @@ export default function ListingDetailPage() {
               <button 
                 onClick={async () => {
                   if (!isAuthenticated) {
-                    navigate('/login');
+                    setIsLoginRequiredModalOpen(true);
                     return;
                   }
                   if (isContacting) return;
@@ -667,6 +684,34 @@ export default function ListingDetailPage() {
             >
               {isSubmittingReport && <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>}
               Gửi báo cáo
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Login Required Modal */}
+      <Modal isOpen={isLoginRequiredModalOpen} onClose={() => setIsLoginRequiredModalOpen(false)} title="Yêu cầu Đăng nhập">
+        <div className="p-6 text-center">
+          <span className="material-symbols-outlined text-5xl text-primary mb-4 block">account_circle</span>
+          <h4 className="text-lg font-bold text-on-surface mb-2">Bạn chưa đăng nhập</h4>
+          <p className="text-on-surface-variant mb-6 text-sm">
+            Vui lòng đăng nhập tài khoản để thực hiện các chức năng như lưu tin đăng, nhắn tin trực tiếp với chủ trọ, gửi đánh giá hoặc báo cáo vi phạm.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => setIsLoginRequiredModalOpen(false)}
+              className="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface font-bold text-sm hover:bg-surface-container transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={() => {
+                setIsLoginRequiredModalOpen(false);
+                navigate('/login', { state: { from: location.pathname } });
+              }}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-dim text-on-primary font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              Đăng nhập ngay
             </button>
           </div>
         </div>

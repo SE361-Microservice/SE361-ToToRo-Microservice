@@ -35,13 +35,16 @@ export default function StudentLayout({ children, user }: StudentLayoutProps) {
     active: pathname === link.href || pathname.startsWith(link.href + '/'),
   }));
 
+  const isGuest = !user;
+  const navVariant = isGuest ? 'guest' : 'student';
+
   return (
     <div className="min-h-screen bg-background text-on-background font-body">
       <TopNavBar
-        variant="student"
-        navLinks={studentLinks}
+        variant={navVariant}
+        navLinks={isGuest ? undefined : studentLinks}
         user={user}
-        extraActions={[
+        extraActions={isGuest ? undefined : [
           {
             icon: 'bookmark',
             label: 'Nhà trọ đã lưu',
@@ -61,11 +64,13 @@ export default function StudentLayout({ children, user }: StudentLayoutProps) {
       />
 
       {/* Mobile pill nav with center swipe FAB */}
-      <BottomNav
-        items={studentNavItems}
-        centerFAB={{ icon: 'swipe', onClick: () => {} }}
-        shape="pill"
-      />
+      {!isGuest && (
+        <BottomNav
+          items={studentNavItems}
+          centerFAB={{ icon: 'swipe', onClick: () => {} }}
+          shape="pill"
+        />
+      )}
 
       {/* AI assistant FAB */}
       <FAB icon="assistant" tooltip="AI Concierge" />

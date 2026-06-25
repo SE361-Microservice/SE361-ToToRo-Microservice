@@ -62,10 +62,18 @@ export default function PostCard({ post, currentUser, onDelete }: PostCardProps)
   }, [post.id]);
 
   const handleCommentButtonClick = () => {
+    if (!currentUser) {
+      toast.warning('Vui lòng đăng nhập để bình luận.');
+      return;
+    }
     commentInputRef.current?.focus();
   };
 
   const handleToggleLike = async () => {
+    if (!currentUser) {
+      toast.warning('Vui lòng đăng nhập để thích bài viết.');
+      return;
+    }
     // Optimistic update
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
@@ -337,116 +345,124 @@ export default function PostCard({ post, currentUser, onDelete }: PostCardProps)
         </div>
 
         {/* Comment Input */}
-        <form onSubmit={handleCommentSubmit} className="space-y-2 mt-2">
-            {/* Image preview */}
-            {commentImagePreview && (
-              <div className="relative inline-block">
-                <img src={commentImagePreview} alt="Preview" className="h-20 rounded-lg object-cover" />
-                <button
-                  type="button"
-                  onClick={() => { setCommentImageFile(null); setCommentImagePreview(null); }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            {/* Attached Listing preview */}
-            {commentAttachedListing && (
-              <div className="relative inline-block mb-2 ml-[48px]">
-                <div className="w-[280px]">
-                  <ListingAttachmentCard
-                    listingId={commentAttachedListing.id}
-                    title={commentAttachedListing.title}
-                    address={commentAttachedListing.address}
-                    coverImage={commentAttachedListing.coverImageUrl}
-                    price={commentAttachedListing.priceRent}
-                    compact
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setCommentAttachedListing(null)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform shadow z-10"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            <div className="flex gap-2 items-start">
-              {currentUser?.avatar ? (
-                <img
-                  src={currentUser.avatar}
-                  alt={currentUser.name || currentUser.email}
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-bold uppercase">
-                  {currentUser?.name?.charAt(0) || currentUser?.email.charAt(0) || 'U'}
+        {!currentUser ? (
+          <div className="mt-2 text-center py-3 bg-surface-container-low rounded-xl">
+            <p className="text-xs text-on-surface-variant">
+              Bạn cần <a href="/login" className="text-primary font-bold hover:underline">đăng nhập</a> để tham gia bình luận.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleCommentSubmit} className="space-y-2 mt-2">
+              {/* Image preview */}
+              {commentImagePreview && (
+                <div className="relative inline-block">
+                  <img src={commentImagePreview} alt="Preview" className="h-20 rounded-lg object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setCommentImageFile(null); setCommentImagePreview(null); }}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform"
+                  >
+                    ✕
+                  </button>
                 </div>
               )}
-              <textarea
-                ref={commentInputRef}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Viết bình luận..."
-                rows={1}
-                className="flex-1 bg-surface-container-low rounded-xl px-3 py-2 text-sm text-on-surface border border-outline-variant/20 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none resize-none min-h-[40px] max-h-[120px]"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleCommentSubmit(e);
-                  }
-                }}
-              />
 
-              {/* Image attach button */}
-              <input
-                ref={commentFileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setCommentImageFile(file);
-                    setCommentImagePreview(URL.createObjectURL(file));
-                  }
-                  e.target.value = '';
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowCommentListingPicker(true)}
-                className="h-10 w-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors flex-shrink-0"
-                title="Đính kèm phòng"
-              >
-                <span className="material-symbols-outlined text-[18px]">holiday_village</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => commentFileRef.current?.click()}
-                className="h-10 w-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors flex-shrink-0"
-                title="Đính kèm ảnh"
-              >
-                <span className="material-symbols-outlined text-[18px]">image</span>
-              </button>
+              {/* Attached Listing preview */}
+              {commentAttachedListing && (
+                <div className="relative inline-block mb-2 ml-[48px]">
+                  <div className="w-[280px]">
+                    <ListingAttachmentCard
+                      listingId={commentAttachedListing.id}
+                      title={commentAttachedListing.title}
+                      address={commentAttachedListing.address}
+                      coverImage={commentAttachedListing.coverImageUrl}
+                      price={commentAttachedListing.priceRent}
+                      compact
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCommentAttachedListing(null)}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-error text-on-primary rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform shadow z-10"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
 
-              <button
-                type="submit"
-                disabled={(!newComment.trim() && !commentImageFile && !commentAttachedListing) || isSubmitting}
-                className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 transition-colors flex-shrink-0"
-              >
-                {isSubmitting ? (
-                  <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>
+              <div className="flex gap-2 items-start">
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser.name || currentUser.email}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
                 ) : (
-                  <span className="material-symbols-outlined text-[18px]">send</span>
+                  <div className="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-bold uppercase">
+                    {currentUser?.name?.charAt(0) || currentUser?.email.charAt(0) || 'U'}
+                  </div>
                 )}
-              </button>
-            </div>
-          </form>
+                <textarea
+                  ref={commentInputRef}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Viết bình luận..."
+                  rows={1}
+                  className="flex-1 bg-surface-container-low rounded-xl px-3 py-2 text-sm text-on-surface border border-outline-variant/20 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none resize-none min-h-[40px] max-h-[120px]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleCommentSubmit(e);
+                    }
+                  }}
+                />
+
+                {/* Image attach button */}
+                <input
+                  ref={commentFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setCommentImageFile(file);
+                      setCommentImagePreview(URL.createObjectURL(file));
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCommentListingPicker(true)}
+                  className="h-10 w-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors flex-shrink-0 cursor-pointer"
+                  title="Đính kèm phòng"
+                >
+                  <span className="material-symbols-outlined text-[18px]">holiday_village</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => commentFileRef.current?.click()}
+                  className="h-10 w-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors flex-shrink-0 cursor-pointer"
+                  title="Đính kèm ảnh"
+                >
+                  <span className="material-symbols-outlined text-[18px]">image</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={(!newComment.trim() && !commentImageFile && !commentAttachedListing) || isSubmitting}
+                  className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 transition-colors flex-shrink-0 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>
+                  ) : (
+                    <span className="material-symbols-outlined text-[18px]">send</span>
+                  )}
+                </button>
+              </div>
+            </form>
+        )}
         </div>
 
       {/* Listing Picker Modal for Comments */}

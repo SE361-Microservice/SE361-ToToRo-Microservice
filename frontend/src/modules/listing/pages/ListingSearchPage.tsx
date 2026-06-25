@@ -202,7 +202,7 @@ export default function ListingSearchPage() {
             { label: 'Tin nhắn', href: '/messages' },
           ]}
           user={navUser}
-          extraActions={isAuthenticated && authUser?.role === 'STUDENT' ? [
+          extraActions={isAuthenticated && authUser?.role === 'USER' ? [
             {
               icon: 'bookmark',
               label: 'Nhà trọ đã lưu',
