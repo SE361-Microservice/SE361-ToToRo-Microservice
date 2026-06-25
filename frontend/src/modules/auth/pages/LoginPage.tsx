@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '../../../layouts/AuthLayout';
 import FormInput from '../../../components/ui/FormInput';
@@ -12,12 +12,15 @@ import axios from 'axios';
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((s) => s.login);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const from = location.state?.from;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +36,9 @@ export default function LoginPage() {
       await fetchCurrentUser();
       const user = useAuthStore.getState().user;
 
-      if (user?.role === 'ADMIN') {
+      if (from) {
+        navigate(from);
+      } else if (user?.role === 'ADMIN') {
         navigate('/admin');
       } else if (user?.role === 'LANDLORD') {
         navigate('/dashboard');

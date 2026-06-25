@@ -14,7 +14,7 @@ export default function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [role, setRole] = useState<UserRole>('STUDENT');
+  const [role, setRole] = useState<UserRole>('USER');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
-export type UserRole = 'STUDENT' | 'LANDLORD';
+export type UserRole = 'USER' | 'LANDLORD';
 
 interface RoleOption {
   value: UserRole;
@@ -17,7 +17,7 @@ interface RoleSelectorProps {
 }
 
 const roles: RoleOption[] = [
-  { value: 'STUDENT', icon: 'school', labelKey: 'register.roleStudent', iconColor: 'text-primary' },
+  { value: 'USER', icon: 'school', labelKey: 'register.roleStudent', iconColor: 'text-primary' },
   { value: 'LANDLORD', icon: 'domain', labelKey: 'register.roleLandlord', iconColor: 'text-secondary' },
 ];
 

@@ -36,7 +36,7 @@ export default function CompleteProfileModal({ onComplete }: Props) {
       // Refresh auth store so the updated role is reflected everywhere
       await fetchCurrentUser();
       onComplete(selectedRole);
-    } catch (err) {
+    } catch {
       setError('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);

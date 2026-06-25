@@ -1,7 +1,7 @@
 // ── Auth Types ─ Mirrors backend DTOs at com.totoro.auth.dto ────────
 
 /** Matches backend Role enum (com.totoro.user.entity.Role) */
-export type UserRole = 'STUDENT' | 'LANDLORD' | 'ADMIN';
+export type UserRole = 'USER' | 'LANDLORD' | 'ADMIN';
 
 // ── Request DTOs ────────────────────────────────────────────────────
 

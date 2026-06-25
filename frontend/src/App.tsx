@@ -84,6 +84,7 @@ export default function App() {
         <Route path="/"                element={<GuestHomePage />} />
         <Route path="/search"          element={<ListingSearchPage />} />
         <Route path="/listings/:id"    element={<ListingDetailPage />} />
+        <Route path="/community"       element={<CommunityPage />} />
 
         {/* Auth (public — guest-only pages) */}
         <Route path="/login"           element={<LoginPage />} />
@@ -100,12 +101,11 @@ export default function App() {
         </Route>
 
         {/* Student-only routes */}
-        <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['USER']} />}>
           <Route path="/home"            element={<StudentHomePage />} />
           <Route path="/saved"           element={<SavedListingsPage />} />
           <Route path="/matching"        element={<MatchingSwipePage />} />
           <Route path="/matching/matches" element={<MatchListPage />} />
-          <Route path="/community"       element={<CommunityPage />} />
           <Route path="/messages"        element={<ChatPage variant="student" />} />
           <Route path="/messages/:conversationId" element={<ChatPage variant="student" />} />
         </Route>
